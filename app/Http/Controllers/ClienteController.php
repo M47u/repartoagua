@@ -11,9 +11,7 @@ class ClienteController extends Controller
     {
         $this->authorize('viewAny', Cliente::class);
         
-        $clientes = Cliente::select('clientes.*')
-            ->selectRaw('clientes.saldo_actual')
-            ->latest()
+        $clientes = Cliente::latest()
             ->paginate(15);
             
         return view('clientes.index', compact('clientes'));

@@ -53,7 +53,7 @@
                 <!-- Filters -->
                 <div class="flex gap-2 flex-wrap">
                     <select class="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent">
-                        <option value="">Todos los estados</option>
+                        <option value="">Estados...</option>
                         <option value="pendiente">Pendientes</option>
                         <option value="en_camino">En camino</option>
                         <option value="entregado">Entregados</option>

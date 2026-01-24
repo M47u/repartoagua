@@ -148,15 +148,15 @@
 
                         <!-- Saldo -->
                         <td class="px-6 py-4">
-                            @if($cliente->saldo > 0)
+                            @if($cliente->saldo_actual > 0)
                                 <div class="flex items-center gap-1 text-red-600">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
                                     </svg>
-                                    <span class="font-semibold">${{ number_format($cliente->saldo, 2) }}</span>
+                                    <span class="font-semibold">${{ number_format($cliente->saldo_actual, 2) }}</span>
                                 </div>
-                            @elseif($cliente->saldo < 0)
-                                <span class="font-semibold text-emerald-600">${{ number_format(abs($cliente->saldo), 2) }}</span>
+                            @elseif($cliente->saldo_actual < 0)
+                                <span class="font-semibold text-emerald-600">${{ number_format(abs($cliente->saldo_actual), 2) }}</span>
                             @else
                                 <span class="text-slate-500">$0.00</span>
                             @endif
@@ -182,11 +182,8 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                                     </svg>
                                 </a>
-                                    <a href="{{ route('clientes.edit', $cliente->id) }}" class="btn btn-sm btn-warning" title="Editar">
-                                        <i class="bi bi-pencil"></i>
-                                    </a>
-                                    <form action="{{ route('clientes.destroy', $cliente->id) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Estás seguro de eliminar este cliente?')">
-                                        @csrf
+
+                                @can('update', $cliente)
                                 <a href="{{ route('clientes.edit', $cliente) }}" 
                                    class="p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors" 
                                    title="Editar">
@@ -194,6 +191,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                     </svg>
                                 </a>
+                                @endcan
 
                                 @can('delete', $cliente)
                                 <form action="{{ route('clientes.destroy', $cliente) }}" method="POST" class="inline-block">
