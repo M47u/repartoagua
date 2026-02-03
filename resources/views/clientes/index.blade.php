@@ -110,11 +110,11 @@
 
                         <!-- Tipo -->
                         <td class="px-6 py-4">
-                            @if($cliente->tipo === 'hogar')
+                            @if($cliente->tipo_cliente === 'hogar')
                                 <x-badge color="info">
                                     🏠 Hogar
                                 </x-badge>
-                            @elseif($cliente->tipo === 'comercio')
+                            @elseif($cliente->tipo_cliente === 'comercio')
                                 <x-badge color="secondary">
                                     🏢 Comercio
                                 </x-badge>
@@ -164,11 +164,42 @@
 
                         <!-- Estado -->
                         <td class="px-6 py-4">
-                            <button class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors
-                                {{ $cliente->activo ? 'bg-emerald-500' : 'bg-slate-300' }}">
-                                <span class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform
-                                    {{ $cliente->activo ? 'translate-x-6' : 'translate-x-1' }}"></span>
-                            </button>
+                            <div x-data="{ 
+                                clienteId: {{ $cliente->id }}, 
+                                activo: {{ $cliente->activo ? 'true' : 'false' }}
+                            }"
+                            @confirm-action.window="if ($event.detail.id === 'toggle-' + clienteId) { activo = !activo; setTimeout(() => $refs.toggleForm.submit(), 300); }">
+                                <form 
+                                    x-ref="toggleForm"
+                                    action="{{ route('clientes.toggle-estado', $cliente) }}" 
+                                    method="POST" 
+                                    class="inline-block"
+                                >
+                                    @csrf
+                                    @method('PATCH')
+                                    <button 
+                                        type="button"
+                                        @click="$dispatch('open-modal', { id: 'toggle-' + clienteId })"
+                                        class="relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300 cursor-pointer hover:opacity-80"
+                                        :class="activo ? 'bg-emerald-500' : 'bg-slate-300'"
+                                        :title="activo ? 'Desactivar cliente' : 'Activar cliente'"
+                                    >
+                                        <span 
+                                            class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300"
+                                            :class="activo ? 'translate-x-6' : 'translate-x-1'"
+                                        ></span>
+                                    </button>
+                                </form>
+
+                                <x-confirm-modal 
+                                    :id="'toggle-' . $cliente->id"
+                                    :title="$cliente->activo ? '¿Desactivar cliente?' : '¿Activar cliente?'"
+                                    :message="$cliente->activo ? '¿Estás seguro de que deseas desactivar a ' . $cliente->nombre . '? No aparecerá en las búsquedas activas.' : '¿Estás seguro de que deseas activar a ' . $cliente->nombre . '?'"
+                                    :confirm-text="$cliente->activo ? 'Desactivar' : 'Activar'"
+                                    cancel-text="Cancelar"
+                                    :confirm-color="$cliente->activo ? 'red' : 'emerald'"
+                                />
+                            </div>
                         </td>
 
                         <!-- Acciones -->

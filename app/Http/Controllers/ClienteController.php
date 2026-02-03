@@ -111,4 +111,16 @@ class ClienteController extends Controller
         return redirect()->route('clientes.index')
             ->with('success', 'Cliente eliminado exitosamente.');
     }
+
+    public function toggleEstado(Cliente $cliente)
+    {
+        $this->authorize('update', $cliente);
+        
+        $cliente->update([
+            'activo' => !$cliente->activo
+        ]);
+
+        return redirect()->route('clientes.index')
+            ->with('success', 'Estado del cliente actualizado exitosamente.');
+    }
 }

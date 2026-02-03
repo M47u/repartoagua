@@ -23,6 +23,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     
     // Clientes - Solo admin y administrativo
     Route::resource('clientes', ClienteController::class);
+    Route::patch('clientes/{cliente}/toggle-estado', [ClienteController::class, 'toggleEstado'])->name('clientes.toggle-estado');
     
     // Productos - Solo admin y administrativo
     Route::resource('productos', ProductoController::class);
