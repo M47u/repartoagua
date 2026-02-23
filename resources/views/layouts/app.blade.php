@@ -95,6 +95,27 @@
                     <span x-show="!sidebarCollapsed">Productos</span>
                 </a>
 
+                @if(in_array(auth()->user()->role, ['administrador', 'gerente']))
+                <!-- Usuarios -->
+                <a href="{{ route('usuarios.index') }}" 
+                   class="flex items-center gap-3 px-4 py-3 rounded-lg transition-all {{ request()->routeIs('usuarios.*') ? 'bg-sky-50 text-sky-700 font-semibold' : 'text-slate-600 hover:bg-slate-50' }}">
+                    <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                    </svg>
+                    <span x-show="!sidebarCollapsed">Usuarios</span>
+                </a>
+
+                <!-- Vehículos -->
+                <a href="{{ route('vehiculos.index') }}" 
+                   class="flex items-center gap-3 px-4 py-3 rounded-lg transition-all {{ request()->routeIs('vehiculos.*') ? 'bg-sky-50 text-sky-700 font-semibold' : 'text-slate-600 hover:bg-slate-50' }}">
+                    <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"></path>
+                    </svg>
+                    <span x-show="!sidebarCollapsed">Vehículos</span>
+                </a>
+                @endif
+
                 @if(auth()->user()->role !== 'repartidor')
                 <!-- Reportes -->
                 <a href="#" 

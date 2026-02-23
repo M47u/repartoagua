@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('movimientos_cuenta', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('cliente_id')->constrained('clientes')->cascadeOnDelete();
+            $table->foreignId('cliente_id')->constrained('clientes')->restrictOnDelete();
             $table->enum('tipo', ['debito', 'credito']);
             $table->enum('origen', ['reparto', 'pago']);
             $table->decimal('monto', 10, 2);

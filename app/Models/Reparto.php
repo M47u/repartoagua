@@ -26,6 +26,8 @@ class Reparto extends Model
 
     protected $casts = [
         'fecha' => 'date',
+        'fecha_programada' => 'date',
+        'fecha_entrega' => 'date',
         'cantidad' => 'integer',
         'precio_unitario' => 'decimal:2',
         'total' => 'decimal:2',
@@ -78,6 +80,14 @@ class Reparto extends Model
     public function scopeEntregados($query)
     {
         return $query->where('estado', 'entregado');
+    }
+
+    /**
+     * Scope para filtrar repartos cancelados
+     */
+    public function scopeCancelados($query)
+    {
+        return $query->where('estado', 'cancelado');
     }
 
     /**

@@ -68,6 +68,7 @@ class RepartoController extends Controller
             'cantidad' => $validated['cantidad'],
             'precio_unitario' => $precio_unitario,
             'total' => $total,
+            'fecha' => now()->toDateString(),
             'fecha_programada' => $validated['fecha_programada'],
             'estado' => 'pendiente',
             'notas' => $validated['notas'] ?? null,
@@ -110,7 +111,7 @@ class RepartoController extends Controller
             'repartidor_id' => 'required|exists:users,id',
             'cantidad' => 'required|integer|min:1',
             'fecha_programada' => 'required|date',
-            'estado' => 'required|in:pendiente,entregado',
+            'estado' => 'required|in:pendiente,entregado,cancelado',
             'notas' => 'nullable|string|max:500',
         ]);
         
@@ -152,7 +153,8 @@ class RepartoController extends Controller
         
         $reparto->update([
             'estado' => 'entregado',
-            'fecha_entrega' => now(),
+            'fecha_entrega' => now()->toDateString(),
+            'entregado_at' => now(),
         ]);
         
         return redirect()->route('repartos.index')

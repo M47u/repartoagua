@@ -6,6 +6,8 @@ use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\RepartoController;
 use App\Http\Controllers\PagoController;
+use App\Http\Controllers\UsuarioController;
+use App\Http\Controllers\VehiculoController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -35,6 +37,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
     
     // Pagos - Solo admin y administrativo
     Route::resource('pagos', PagoController::class);
+    
+    // Usuarios - Admin y gerente
+    Route::resource('usuarios', UsuarioController::class);
+    Route::patch('usuarios/{usuario}/toggle-estado', [UsuarioController::class, 'toggleEstado'])
+        ->name('usuarios.toggle-estado');
+    
+    // Vehículos - Admin, gerente, administrativo y chofer (limitado)
+    Route::resource('vehiculos', VehiculoController::class);
+    Route::patch('vehiculos/{vehiculo}/toggle-estado', [VehiculoController::class, 'toggleEstado'])
+        ->name('vehiculos.toggle-estado');
+    Route::post('vehiculos/{vehiculo}/mantenimiento', [VehiculoController::class, 'registrarMantenimiento'])
+        ->name('vehiculos.mantenimiento');
 });
 
 require __DIR__.'/auth.php';

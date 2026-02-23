@@ -4,7 +4,6 @@ namespace App\Policies;
 
 use App\Models\Pago;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class PagoPolicy
 {
@@ -13,7 +12,7 @@ class PagoPolicy
      */
     public function viewAny(User $user): bool
     {
-        return in_array($user->role, ['administrador', 'administrativo']);
+        return in_array($user->role, ['administrador', 'administrativo', 'gerente']);
     }
 
     /**
@@ -21,7 +20,7 @@ class PagoPolicy
      */
     public function view(User $user, Pago $pago): bool
     {
-        return in_array($user->role, ['administrador', 'administrativo']);
+        return in_array($user->role, ['administrador', 'administrativo', 'gerente']);
     }
 
     /**
@@ -45,7 +44,7 @@ class PagoPolicy
      */
     public function delete(User $user, Pago $pago): bool
     {
-        return in_array($user->role, ['administrador', 'administrativo']);
+        return in_array($user->role, ['administrador']);
     }
 
     /**

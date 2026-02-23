@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Pago;
 use App\Models\Cliente;
-use App\Models\MovimientoCuenta;
 use Illuminate\Http\Request;
 
 class PagoController extends Controller
@@ -50,7 +49,9 @@ class PagoController extends Controller
             'metodo_pago' => $validated['metodo_pago'],
             'referencia' => $validated['referencia'] ?? null,
             'notas' => $validated['notas'] ?? null,
+            'fecha' => now()->toDateString(),
             'fecha_pago' => now(),
+            'registrado_por' => auth()->id(),
         ]);
         
         // El MovimientoCuenta se crea automáticamente en el PagoObserver

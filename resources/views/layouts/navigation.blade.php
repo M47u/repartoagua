@@ -15,6 +15,42 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
+
+                    @can('viewAny', App\Models\Cliente::class)
+                    <x-nav-link :href="route('clientes.index')" :active="request()->routeIs('clientes.*')">
+                        Clientes
+                    </x-nav-link>
+                    @endcan
+
+                    @can('viewAny', App\Models\Producto::class)
+                    <x-nav-link :href="route('productos.index')" :active="request()->routeIs('productos.*')">
+                        Productos
+                    </x-nav-link>
+                    @endcan
+
+                    @can('viewAny', App\Models\Reparto::class)
+                    <x-nav-link :href="route('repartos.index')" :active="request()->routeIs('repartos.*')">
+                        Repartos
+                    </x-nav-link>
+                    @endcan
+
+                    @can('viewAny', App\Models\Pago::class)
+                    <x-nav-link :href="route('pagos.index')" :active="request()->routeIs('pagos.*')">
+                        Pagos
+                    </x-nav-link>
+                    @endcan
+
+                    @can('viewAny', App\Models\User::class)
+                    <x-nav-link :href="route('usuarios.index')" :active="request()->routeIs('usuarios.*')">
+                        Usuarios
+                    </x-nav-link>
+                    @endcan
+
+                    @can('viewAny', App\Models\Vehiculo::class)
+                    <x-nav-link :href="route('vehiculos.index')" :active="request()->routeIs('vehiculos.*')">
+                        Vehículos
+                    </x-nav-link>
+                    @endcan
                 </div>
             </div>
 
@@ -70,6 +106,42 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+
+            @can('viewAny', App\Models\Cliente::class)
+            <x-responsive-nav-link :href="route('clientes.index')" :active="request()->routeIs('clientes.*')">
+                Clientes
+            </x-responsive-nav-link>
+            @endcan
+
+            @can('viewAny', App\Models\Producto::class)
+            <x-responsive-nav-link :href="route('productos.index')" :active="request()->routeIs('productos.*')">
+                Productos
+            </x-responsive-nav-link>
+            @endcan
+
+            @can('viewAny', App\Models\Reparto::class)
+            <x-responsive-nav-link :href="route('repartos.index')" :active="request()->routeIs('repartos.*')">
+                Repartos
+            </x-responsive-nav-link>
+            @endcan
+
+            @can('viewAny', App\Models\Pago::class)
+            <x-responsive-nav-link :href="route('pagos.index')" :active="request()->routeIs('pagos.*')">
+                Pagos
+            </x-responsive-nav-link>
+            @endcan
+
+            @can('viewAny', App\Models\User::class)
+            <x-responsive-nav-link :href="route('usuarios.index')" :active="request()->routeIs('usuarios.*')">
+                Usuarios
+            </x-responsive-nav-link>
+            @endcan
+
+            @can('viewAny', App\Models\Vehiculo::class)
+            <x-responsive-nav-link :href="route('vehiculos.index')" :active="request()->routeIs('vehiculos.*')">
+                Vehículos
+            </x-responsive-nav-link>
+            @endcan
         </div>
 
         <!-- Responsive Settings Options -->

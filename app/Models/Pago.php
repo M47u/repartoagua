@@ -13,7 +13,6 @@ class Pago extends Model
         'fecha_pago',
         'cliente_id',
         'monto',
-        'metodo',
         'metodo_pago',
         'referencia',
         'notas',

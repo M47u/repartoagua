@@ -19,9 +19,18 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'apellido',
         'email',
         'password',
         'role',
+        'telefono',
+        'dni',
+        'direccion',
+        'ciudad',
+        'fecha_ingreso',
+        'fecha_nacimiento',
+        'observaciones',
+        'activo',
     ];
 
     /**
@@ -44,6 +53,9 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'fecha_ingreso' => 'date',
+            'fecha_nacimiento' => 'date',
+            'activo' => 'boolean',
         ];
     }
 
@@ -72,6 +84,22 @@ class User extends Authenticatable
     }
 
     /**
+     * Verifica si el usuario es chofer
+     */
+    public function isChofer(): bool
+    {
+        return $this->role === 'chofer';
+    }
+
+    /**
+     * Verifica si el usuario es gerente
+     */
+    public function isGerente(): bool
+    {
+        return $this->role === 'gerente';
+    }
+
+    /**
      * Repartos asignados al repartidor
      */
     public function repartos()
@@ -85,5 +113,47 @@ class User extends Authenticatable
     public function pagos()
     {
         return $this->hasMany(\App\Models\Pago::class, 'registrado_por');
+    }
+
+    /**
+     * Vehículos asignados al chofer
+     */
+    public function vehiculos()
+    {
+        return $this->belongsToMany(\App\Models\Vehiculo::class, 'chofer_vehiculo')
+            ->withPivot(['fecha_asignacion', 'fecha_desasignacion', 'asignacion_activa', 'observaciones'])
+            ->withTimestamps();
+    }
+
+    /**
+     * Vehículos actualmente asignados al chofer
+     */
+    public function vehiculosActivos()
+    {
+        return $this->vehiculos()->wherePivot('asignacion_activa', true);
+    }
+
+    /**
+     * Scope para filtrar usuarios activos
+     */
+    public function scopeActivos($query)
+    {
+        return $query->where('activo', true);
+    }
+
+    /**
+     * Scope para filtrar por rol
+     */
+    public function scopeRole($query, $role)
+    {
+        return $query->where('role', $role);
+    }
+
+    /**
+     * Obtiene el nombre completo del usuario
+     */
+    public function getNombreCompletoAttribute(): string
+    {
+        return trim("{$this->name} {$this->apellido}");
     }
 }

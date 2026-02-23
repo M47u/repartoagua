@@ -4,7 +4,6 @@ namespace App\Policies;
 
 use App\Models\Cliente;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class ClientePolicy
 {
@@ -13,7 +12,7 @@ class ClientePolicy
      */
     public function viewAny(User $user): bool
     {
-        return in_array($user->role, ['administrador', 'administrativo']);
+        return in_array($user->role, ['administrador', 'administrativo', 'gerente']);
     }
 
     /**
@@ -21,7 +20,7 @@ class ClientePolicy
      */
     public function view(User $user, Cliente $cliente): bool
     {
-        return in_array($user->role, ['administrador', 'administrativo']);
+        return in_array($user->role, ['administrador', 'administrativo', 'gerente']);
     }
 
     /**
@@ -29,7 +28,7 @@ class ClientePolicy
      */
     public function create(User $user): bool
     {
-        return in_array($user->role, ['administrador', 'administrativo']);
+        return in_array($user->role, ['administrador', 'administrativo', 'gerente']);
     }
 
     /**
@@ -37,7 +36,7 @@ class ClientePolicy
      */
     public function update(User $user, Cliente $cliente): bool
     {
-        return in_array($user->role, ['administrador', 'administrativo']);
+        return in_array($user->role, ['administrador', 'administrativo', 'gerente']);
     }
 
     /**
@@ -45,7 +44,7 @@ class ClientePolicy
      */
     public function delete(User $user, Cliente $cliente): bool
     {
-        return in_array($user->role, ['administrador', 'administrativo']);
+        return in_array($user->role, ['administrador', 'gerente']);
     }
 
     /**

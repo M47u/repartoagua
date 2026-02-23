@@ -16,7 +16,6 @@
     };
     
     $iconTextClass = match($confirmColor) {
-        'red' => 'text-red-600',
         'emerald' => 'text-emerald-600',
         'sky' => 'text-sky-600',
         default => 'text-sky-600'

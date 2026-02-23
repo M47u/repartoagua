@@ -166,9 +166,12 @@
                         <td class="px-6 py-4">
                             <div x-data="{ 
                                 clienteId: {{ $cliente->id }}, 
-                                activo: {{ $cliente->activo ? 'true' : 'false' }}
+                                activo: {{ $cliente->activo ? 'true' : 'false' }},
+                                submitForm() {
+                                    $refs.toggleForm.submit();
+                                }
                             }"
-                            @confirm-action.window="if ($event.detail.id === 'toggle-' + clienteId) { activo = !activo; setTimeout(() => $refs.toggleForm.submit(), 300); }">
+                            @confirm-action.window="if ($event.detail.id === 'toggle-' + clienteId) submitForm()">
                                 <form 
                                     x-ref="toggleForm"
                                     action="{{ route('clientes.toggle-estado', $cliente) }}" 
@@ -180,12 +183,12 @@
                                     <button 
                                         type="button"
                                         @click="$dispatch('open-modal', { id: 'toggle-' + clienteId })"
-                                        class="relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300 cursor-pointer hover:opacity-80"
+                                        class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer hover:opacity-80"
                                         :class="activo ? 'bg-emerald-500' : 'bg-slate-300'"
                                         :title="activo ? 'Desactivar cliente' : 'Activar cliente'"
                                     >
                                         <span 
-                                            class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300"
+                                            class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
                                             :class="activo ? 'translate-x-6' : 'translate-x-1'"
                                         ></span>
                                     </button>

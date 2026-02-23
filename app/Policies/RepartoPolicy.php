@@ -4,7 +4,6 @@ namespace App\Policies;
 
 use App\Models\Reparto;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class RepartoPolicy
 {
@@ -21,8 +20,8 @@ class RepartoPolicy
      */
     public function view(User $user, Reparto $reparto): bool
     {
-        // Admin/Administrativo ven todos, repartidor solo los suyos
-        if (in_array($user->role, ['administrador', 'administrativo'])) {
+        // Admin/Administrativo/Gerente ven todos, repartidor solo los suyos
+        if (in_array($user->role, ['administrador', 'administrativo', 'gerente'])) {
             return true;
         }
         
@@ -34,7 +33,7 @@ class RepartoPolicy
      */
     public function create(User $user): bool
     {
-        return in_array($user->role, ['administrador', 'administrativo']);
+        return in_array($user->role, ['administrador', 'administrativo', 'gerente']);
     }
 
     /**
@@ -42,8 +41,8 @@ class RepartoPolicy
      */
     public function update(User $user, Reparto $reparto): bool
     {
-        // Admin puede actualizar todo
-        if ($user->role === 'administrador') {
+        // Admin y gerente pueden actualizar todo
+        if (in_array($user->role, ['administrador', 'gerente'])) {
             return true;
         }
         
@@ -60,7 +59,7 @@ class RepartoPolicy
      */
     public function delete(User $user, Reparto $reparto): bool
     {
-        return $user->role === 'administrador';
+        return in_array($user->role, ['administrador', 'gerente']);
     }
 
     /**

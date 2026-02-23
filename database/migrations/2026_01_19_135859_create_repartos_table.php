@@ -14,13 +14,16 @@ return new class extends Migration
         Schema::create('repartos', function (Blueprint $table) {
             $table->id();
             $table->date('fecha');
-            $table->foreignId('cliente_id')->constrained('clientes')->cascadeOnDelete();
-            $table->foreignId('repartidor_id')->constrained('users')->cascadeOnDelete();
-            $table->foreignId('producto_id')->constrained('productos')->cascadeOnDelete();
+            $table->date('fecha_programada')->nullable();
+            $table->date('fecha_entrega')->nullable();
+            $table->foreignId('cliente_id')->constrained('clientes')->restrictOnDelete();
+            $table->foreignId('repartidor_id')->constrained('users')->restrictOnDelete();
+            $table->foreignId('producto_id')->constrained('productos')->restrictOnDelete();
             $table->integer('cantidad');
             $table->decimal('precio_unitario', 8, 2);
             $table->decimal('total', 10, 2);
-            $table->enum('estado', ['pendiente', 'entregado'])->default('pendiente');
+            $table->enum('estado', ['pendiente', 'entregado', 'cancelado'])->default('pendiente');
+            $table->text('notas')->nullable();
             $table->text('observaciones')->nullable();
             $table->timestamp('entregado_at')->nullable();
             $table->timestamps();
