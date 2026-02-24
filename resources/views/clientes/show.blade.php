@@ -15,9 +15,9 @@
         <div class="flex flex-col md:flex-row md:items-center gap-6">
             <!-- Avatar -->
             <div class="w-24 h-24 rounded-full flex items-center justify-center flex-shrink-0 text-white font-bold text-3xl
-                {{ $cliente->tipo === 'hogar' ? 'bg-gradient-to-br from-sky-400 to-sky-600' : '' }}
-                {{ $cliente->tipo === 'comercio' ? 'bg-gradient-to-br from-purple-400 to-purple-600' : '' }}
-                {{ $cliente->tipo === 'empresa' ? 'bg-gradient-to-br from-amber-400 to-amber-600' : '' }}
+                {{ $cliente->tipo_cliente === 'hogar' ? 'bg-gradient-to-br from-sky-400 to-sky-600' : '' }}
+                {{ $cliente->tipo_cliente === 'comercio' ? 'bg-gradient-to-br from-purple-400 to-purple-600' : '' }}
+                {{ $cliente->tipo_cliente === 'empresa' ? 'bg-gradient-to-br from-amber-400 to-amber-600' : '' }}
             ">
                 {{ strtoupper(substr($cliente->nombre, 0, 2)) }}
             </div>
@@ -27,9 +27,9 @@
                 <h1 class="text-3xl font-bold text-slate-900 mb-2">{{ $cliente->nombre }} {{ $cliente->apellido }}</h1>
                 
                 <div class="flex flex-wrap items-center gap-3">
-                    @if($cliente->tipo === 'hogar')
+                    @if($cliente->tipo_cliente === 'hogar')
                         <x-badge color="info" size="lg">🏠 Hogar</x-badge>
-                    @elseif($cliente->tipo === 'comercio')
+                    @elseif($cliente->tipo_cliente === 'comercio')
                         <x-badge color="secondary" size="lg">🏢 Comercio</x-badge>
                     @else
                         <x-badge color="warning" size="lg">🏭 Empresa</x-badge>
@@ -73,6 +73,17 @@
                     <p class="text-slate-900 font-medium">{{ $cliente->telefono ?? 'No registrado' }}</p>
                 </div>
 
+                @if($cliente->email)
+                <div>
+                    <label class="text-sm font-medium text-slate-500">Email</label>
+                    <p class="text-slate-900 font-medium">
+                        <a href="mailto:{{ $cliente->email }}" class="text-sky-600 hover:text-sky-700 hover:underline">
+                            {{ $cliente->email }}
+                        </a>
+                    </p>
+                </div>
+                @endif
+
                 <div>
                     <label class="text-sm font-medium text-slate-500">Dirección</label>
                     <p class="text-slate-900 font-medium">{{ $cliente->direccion }}</p>
@@ -105,21 +116,41 @@
 
             <div class="space-y-3">
                 <div>
-                    <label class="text-sm font-medium text-slate-500">Tipo</label>
-                    <p class="text-slate-900 font-medium capitalize">{{ $cliente->tipo }}</p>
+                    <label class="text-sm font-medium text-slate-500">Tipo de Cliente</label>
+                    <p class="text-slate-900 font-medium">
+                        @if($cliente->tipo_cliente === 'hogar')
+                            🏠 Hogar
+                        @elseif($cliente->tipo_cliente === 'comercio')
+                            🏢 Comercio
+                        @else
+                            🏭 Empresa
+                        @endif
+                    </p>
                 </div>
 
-                @if($cliente->precio_especial)
+                @if($cliente->precio_por_bidon)
                 <div>
-                    <label class="text-sm font-medium text-slate-500">Precio Especial</label>
-                    <p class="text-slate-900 font-medium">${{ number_format($cliente->precio_especial, 2) }}</p>
+                    <label class="text-sm font-medium text-slate-500">Precio por Bidón</label>
+                    <p class="text-slate-900 font-semibold text-lg">${{ number_format($cliente->precio_por_bidon, 2) }}</p>
+                </div>
+                @else
+                <div>
+                    <label class="text-sm font-medium text-slate-500">Precio por Bidón</label>
+                    <p class="text-slate-500 italic">Precio predeterminado del sistema</p>
                 </div>
                 @endif
 
                 <div>
-                    <label class="text-sm font-medium text-slate-500">Saldo</label>
-                    <p class="font-bold {{ $cliente->saldo > 0 ? 'text-red-600' : ($cliente->saldo < 0 ? 'text-emerald-600' : 'text-slate-600') }}">
+                    <label class="text-sm font-medium text-slate-500">Saldo en Cuenta Corriente</label>
+                    <p class="font-bold text-2xl {{ $cliente->saldo > 0 ? 'text-red-600' : ($cliente->saldo < 0 ? 'text-emerald-600' : 'text-slate-600') }}">
                         ${{ number_format(abs($cliente->saldo), 2) }}
+                        @if($cliente->saldo > 0)
+                            <span class="text-sm font-normal text-red-500">(Debe)</span>
+                        @elseif($cliente->saldo < 0)
+                            <span class="text-sm font-normal text-emerald-500">(A favor)</span>
+                        @else
+                            <span class="text-sm font-normal text-slate-500">(Sin saldo)</span>
+                        @endif
                     </p>
                 </div>
 
