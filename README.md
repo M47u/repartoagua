@@ -1,11 +1,188 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 💧 Sistema de Reparto de Agua
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Sistema web completo para gestión de reparto de agua embotellada, desarrollado con Laravel 12 y Tailwind CSS.
+
+## 📋 Características
+
+### Módulos Principales
+- **👥 Gestión de Clientes**: Alta, baja, modificación y consulta de clientes con cuenta corriente
+- **👤 Gestión de Usuarios**: Usuarios con roles (Administrador, Gerente, Administrativo, Chofer, Repartidor)
+- **🚚 Gestión de Vehículos**: Control de flota con estados (disponible, en uso, mantenimiento, fuera de servicio)
+- **💰 Gestión de Pagos**: Registro de pagos con múltiples métodos (efectivo, transferencia, cuenta corriente)
+- **📦 Gestión de Productos**: Catálogo de productos (bidones, dispensers, accesorios)
+- **🚗 Gestión de Repartos**: Planificación y seguimiento de entregas
+- **📊 Movimientos de Cuenta**: Sistema automático de contabilidad para clientes
+
+### Funcionalidades Destacadas
+- ✅ Sistema de autenticación y autorización basado en roles
+- ✅ Contabilidad automática con Observers (Laravel)
+- ✅ Interfaz responsive con Tailwind CSS
+- ✅ Componentes reutilizables Blade
+- ✅ Filtros y búsquedas avanzadas
+- ✅ Estadísticas en tiempo real
+- ✅ Auditoría de cambios (creado/actualizado por)
+
+## 🚀 Deployment en Hostinger (Subcarpeta)
+
+Este proyecto está listo para desplegarse en Hostinger en una subcarpeta.
+
+### Guías de Deployment
+
+📖 **[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)** - Guía completa paso a paso
+
+✅ **[DEPLOYMENT_CHECKLIST.md](DEPLOYMENT_CHECKLIST.md)** - Checklist interactivo
+
+### Scripts de Deployment
+
+```powershell
+# Ejecutar ANTES de subir archivos (en tu PC)
+.\deploy-prepare.ps1
+```
+
+Revisa `deploy-server-commands.ps1` para los comandos a ejecutar en el servidor.
+
+### Configuración Rápida
+
+1. **Preparar localmente:**
+   ```bash
+   composer install --optimize-autoloader --no-dev
+   npm run build
+   php artisan config:cache
+   ```
+
+2. **Subir archivos a:** `public_html/sistemaagua/`
+
+3. **En el servidor:**
+   ```bash
+   php artisan key:generate
+   php artisan migrate --force
+   php artisan config:cache
+   ```
+
+4. **Acceder a:** `https://pyfsasoftware.com.ar/sistemaagua`
+
+## 💻 Instalación Local
+
+### Requisitos
+- PHP 8.2+
+- Composer
+- Node.js & NPM
+- MySQL 8.0+
+- XAMPP (opcional)
+
+### Pasos de Instalación
+
+1. **Clonar el repositorio:**
+   ```bash
+   git clone https://github.com/M47u/repartoagua.git
+   cd repartoagua
+   ```
+
+2. **Instalar dependencias:**
+   ```bash
+   composer install
+   npm install
+   ```
+
+3. **Configurar entorno:**
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
+
+4. **Configurar base de datos** en `.env`:
+   ```env
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=repartoagua
+   DB_USERNAME=root
+   DB_PASSWORD=
+   ```
+
+5. **Ejecutar migraciones:**
+   ```bash
+   php artisan migrate
+   ```
+
+6. **Seeders (opcional - datos de prueba):**
+   ```bash
+   php artisan db:seed
+   ```
+
+7. **Compilar assets:**
+   ```bash
+   npm run dev
+   ```
+
+8. **Iniciar servidor:**
+   ```bash
+   php artisan serve
+   ```
+
+9. **Acceder a:** `http://127.0.0.1:8000`
+
+## 📚 Estructura del Proyecto
+
+```
+├── app/
+│   ├── Http/Controllers/     # Controladores CRUD
+│   ├── Models/               # Modelos Eloquent
+│   ├── Observers/            # Observers para eventos
+│   ├── Policies/             # Políticas de autorización
+│   └── Providers/            # Service Providers
+├── database/
+│   ├── migrations/           # Migraciones de BD
+│   └── seeders/              # Seeders de datos
+├── resources/
+│   ├── views/                # Vistas Blade
+│   │   ├── clientes/
+│   │   ├── usuarios/
+│   │   ├── vehiculos/
+│   │   ├── pagos/
+│   │   ├── productos/
+│   │   └── repartos/
+│   ├── css/                  # Estilos CSS
+│   └── js/                   # JavaScript
+└── routes/
+    └── web.php               # Rutas web
+```
+
+## 🔐 Roles de Usuario
+
+| Rol | Permisos |
+|-----|----------|
+| **Administrador** | Acceso total al sistema |
+| **Gerente** | Gestión completa excepto configuración crítica |
+| **Administrativo** | Gestión de clientes, pagos y productos |
+| **Chofer** | Acceso a vehículos asignados y repartos |
+| **Repartidor** | Acceso solo a sus propios repartos |
+
+## 🛠️ Tecnologías Utilizadas
+
+- **Backend:** Laravel 12 (PHP 8.2)
+- **Frontend:** Blade Templates + Alpine.js + Tailwind CSS
+- **Base de Datos:** MySQL 8.0
+- **Autenticación:** Laravel Breeze
+- **Build Tools:** Vite
+
+## 📄 Documentación Adicional
+
+- **[DISEÑO_UI_UX.md](DISEÑO_UI_UX.md)** - Guía de diseño y componentes
+- **[SNIPPETS.md](SNIPPETS.md)** - Snippets de código útiles
+
+## 🤝 Contribución
+
+Este es un proyecto privado. Para colaborar, contacta al administrador del repositorio.
+
+## 📞 Soporte
+
+Para problemas de deployment o bugs, consulta:
+1. Los logs en `storage/logs/laravel.log`
+2. La guía [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)
+3. El checklist [DEPLOYMENT_CHECKLIST.md](DEPLOYMENT_CHECKLIST.md)
+
+---
 
 ## About Laravel
 

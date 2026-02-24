@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\URL;
 use App\Models\Reparto;
 use App\Models\Pago;
 use App\Observers\RepartoObserver;
@@ -23,6 +24,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Forzar HTTPS en producción
+        if ($this->app->environment('production')) {
+            URL::forceScheme('https');
+        }
+
         // Registrar observers
         Reparto::observe(RepartoObserver::class);
         Pago::observe(PagoObserver::class);
