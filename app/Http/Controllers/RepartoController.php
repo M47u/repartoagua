@@ -23,7 +23,10 @@ class RepartoController extends Controller
         
         $repartos = $query->latest()->paginate(15);
         
-        return view('repartos.index', compact('repartos'));
+        // Obtener todos los repartidores para el filtro
+        $repartidores = User::where('role', 'repartidor')->orderBy('name')->get();
+        
+        return view('repartos.index', compact('repartos', 'repartidores'));
     }
 
     public function create()

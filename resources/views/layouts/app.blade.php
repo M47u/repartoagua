@@ -13,6 +13,7 @@
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @stack('styles')
 </head>
 <body class="font-sans antialiased bg-slate-50">
     <div x-data="{ sidebarOpen: false, sidebarCollapsed: false }" class="min-h-screen">

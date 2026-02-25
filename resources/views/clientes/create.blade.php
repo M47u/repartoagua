@@ -8,6 +8,20 @@
     <span class="text-slate-600">Nuevo Cliente</span>
 @endsection
 
+@push('styles')
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<style>
+#map {
+    height: 400px;
+    border-radius: 0.5rem;
+    z-index: 1;
+}
+.leaflet-popup-content {
+    font-size: 14px;
+}
+</style>
+@endpush
+
 @section('content')
 <div class="max-w-4xl mx-auto space-y-6">
     <!-- Header -->
@@ -150,6 +164,65 @@
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
+
+                            <!-- Latitud -->
+                            <div>
+                                <label for="latitude" class="block text-sm font-medium text-slate-700 mb-2">
+                                    Latitud
+                                </label>
+                                <input type="number" 
+                                       id="latitude" 
+                                       name="latitude" 
+                                       value="{{ old('latitude') }}" 
+                                       step="0.00000001"
+                                       min="-90"
+                                       max="90"
+                                       placeholder="-26.185700"
+                                       class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent @error('latitude') border-red-500 @enderror">
+                                @error('latitude')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                                <p class="mt-1 text-xs text-slate-500">Coordenada geográfica (ej: -26.1857)</p>
+                            </div>
+
+                            <!-- Longitud -->
+                            <div>
+                                <label for="longitude" class="block text-sm font-medium text-slate-700 mb-2">
+                                    Longitud
+                                </label>
+                                <input type="number" 
+                                       id="longitude" 
+                                       name="longitude" 
+                                       value="{{ old('longitude') }}" 
+                                       step="0.00000001"
+                                       min="-180"
+                                       max="180"
+                                       placeholder="-58.175600"
+                                       class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent @error('longitude') border-red-500 @enderror">
+                                @error('longitude')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                                <p class="mt-1 text-xs text-slate-500">Coordenada geográfica (ej: -58.1756)</p>
+                            </div>
+                        </div>
+
+                        <!-- Mapa Interactivo -->
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <label class="block text-sm font-medium text-slate-700">
+                                    Ubicación en el Mapa
+                                </label>
+                                <button type="button" 
+                                        onclick="buscarEnMapa()"
+                                        class="px-3 py-1.5 bg-sky-100 text-sky-700 rounded-lg hover:bg-sky-200 transition-colors text-sm font-medium">
+                                    📍 Buscar dirección en mapa
+                                </button>
+                            </div>
+                            <div id="map" class="border border-slate-300 shadow-sm"></div>
+                            <p class="text-xs text-slate-500">
+                                💡 <strong>Cómo usar:</strong> Ingresa la dirección y haz clic en "Buscar dirección en mapa" para geocodificar automáticamente, 
+                                o haz clic directamente en el mapa para establecer la ubicación. También puedes arrastrar el marcador 📍 para ajustar la posición.
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -253,4 +326,128 @@
         </div>
     </form>
 </div>
+
+@push('scripts')
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+let map;
+let marker;
+
+// Inicializar el mapa cuando se carga la página
+document.addEventListener('DOMContentLoaded', function() {
+    // Centro inicial en Formosa, Argentina
+    const defaultLat = -26.1857;
+    const defaultLng = -58.1756;
+    
+    // Inicializar mapa
+    map = L.map('map').setView([defaultLat, defaultLng], 13);
+    
+    // Agregar capa de tiles de OpenStreetMap
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 19
+    }).addTo(map);
+    
+    // Si ya hay coordenadas en los campos, mostrar marcador
+    const latInput = document.getElementById('latitude');
+    const lngInput = document.getElementById('longitude');
+    
+    if (latInput.value && lngInput.value) {
+        const lat = parseFloat(latInput.value);
+        const lng = parseFloat(lngInput.value);
+        agregarMarcador(lat, lng);
+        map.setView([lat, lng], 15);
+    }
+    
+    // Permitir hacer clic en el mapa para establecer ubicación
+    map.on('click', function(e) {
+        agregarMarcador(e.latlng.lat, e.latlng.lng);
+    });
+});
+
+// Función para agregar o mover marcador
+function agregarMarcador(lat, lng) {
+    // Si ya existe un marcador, removerlo
+    if (marker) {
+        map.removeLayer(marker);
+    }
+    
+    // Crear nuevo marcador draggable (arrastrable)
+    marker = L.marker([lat, lng], {
+        draggable: true
+    }).addTo(map);
+    
+    // Actualizar campos cuando se arrastra el marcador
+    marker.on('dragend', function(e) {
+        const position = e.target.getLatLng();
+        actualizarCoordenadas(position.lat, position.lng);
+    });
+    
+    // Popup con información
+    marker.bindPopup(`<b>Ubicación del Cliente</b><br>Lat: ${lat.toFixed(6)}<br>Lng: ${lng.toFixed(6)}`).openPopup();
+    
+    // Actualizar campos de coordenadas
+    actualizarCoordenadas(lat, lng);
+}
+
+// Actualizar campos de input con las coordenadas
+function actualizarCoordenadas(lat, lng) {
+    document.getElementById('latitude').value = lat.toFixed(8);
+    document.getElementById('longitude').value = lng.toFixed(8);
+}
+
+// Buscar dirección en el mapa usando geocodificación
+function buscarEnMapa() {
+    const direccion = document.getElementById('direccion').value;
+    const colonia = document.getElementById('colonia').value;
+    const ciudad = document.getElementById('ciudad').value;
+    
+    if (!direccion || !ciudad) {
+        alert('Por favor, completa la dirección y ciudad primero.');
+        return;
+    }
+    
+    // Construir dirección completa para Argentina
+    let direccionCompleta = direccion;
+    if (colonia) direccionCompleta += ', ' + colonia;
+    direccionCompleta += ', ' + ciudad + ', Formosa, Argentina';
+    
+    // Mostrar indicador de carga
+    const btnBuscar = event.target;
+    const textoOriginal = btnBuscar.innerHTML;
+    btnBuscar.innerHTML = '🔍 Buscando...';
+    btnBuscar.disabled = true;
+    
+    // Usar la API de Nominatim (OpenStreetMap) para geocodificación gratuita
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(direccionCompleta)}&limit=1`;
+    
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            if (data && data.length > 0) {
+                const lat = parseFloat(data[0].lat);
+                const lng = parseFloat(data[0].lon);
+                
+                // Centrar mapa y agregar marcador
+                map.setView([lat, lng], 16);
+                agregarMarcador(lat, lng);
+                
+                // Mostrar mensaje de éxito
+                alert('✓ Ubicación encontrada en el mapa. Puedes ajustar el marcador arrastrándolo si es necesario.');
+            } else {
+                alert('⚠️ No se encontró la dirección exacta. Por favor, haz clic en el mapa para marcar la ubicación manualmente.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('❌ Error al buscar la dirección. Intenta hacer clic en el mapa para marcar la ubicación manualmente.');
+        })
+        .finally(() => {
+            btnBuscar.innerHTML = textoOriginal;
+            btnBuscar.disabled = false;
+        });
+}
+</script>
+@endpush
+
 @endsection

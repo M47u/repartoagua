@@ -39,6 +39,8 @@ class ClienteController extends Controller
             'tipo_cliente' => 'required|in:hogar,comercio,empresa',
             'precio_por_bidon' => 'nullable|numeric|min:0',
             'activo' => 'boolean',
+            'latitude' => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
         ]);
 
         Cliente::create($validated);
@@ -88,6 +90,8 @@ class ClienteController extends Controller
             'tipo_cliente' => 'required|in:hogar,comercio,empresa',
             'precio_por_bidon' => 'nullable|numeric|min:0',
             'activo' => 'boolean',
+            'latitude' => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
         ]);
 
         $cliente->update($validated);

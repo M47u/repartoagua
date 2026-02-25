@@ -19,6 +19,8 @@ class Cliente extends Model
         'precio_por_bidon',
         'observaciones',
         'activo',
+        'latitude',
+        'longitude',
     ];
 
     protected $casts = [

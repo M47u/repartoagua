@@ -81,3 +81,58 @@
         </button>
     </div>
 </div>
+@if(session('success'))
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        window.dispatchEvent(new CustomEvent('toast', {
+            detail: {
+                message: '{{ session('success') }}',
+                type: 'success',
+                duration: 3000
+            }
+        }));
+    });
+</script>
+@endif
+
+@if(session('error'))
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        window.dispatchEvent(new CustomEvent('toast', {
+            detail: {
+                message: '{{ session('error') }}',
+                type: 'error',
+                duration: 4000
+            }
+        }));
+    });
+</script>
+@endif
+
+@if(session('warning'))
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        window.dispatchEvent(new CustomEvent('toast', {
+            detail: {
+                message: '{{ session('warning') }}',
+                type: 'warning',
+                duration: 3500
+            }
+        }));
+    });
+</script>
+@endif
+
+@if(session('info'))
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        window.dispatchEvent(new CustomEvent('toast', {
+            detail: {
+                message: '{{ session('info') }}',
+                type: 'info',
+                duration: 3000
+            }
+        }));
+    });
+</script>
+@endif
