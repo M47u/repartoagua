@@ -33,6 +33,26 @@
                 <div class="bg-white rounded-full h-3 transition-all duration-500" style="width: {{ $total > 0 ? (($completados ?? 0) / $total * 100) : 0 }}%"></div>
             </div>
         </div>
+
+        <!-- Botón de Ruta Óptima -->
+        @if($stats['repartos_pendientes'] > 0)
+        <div class="mt-6">
+            <a href="{{ route('repartos.index') }}" class="block w-full sm:w-auto">
+                <button class="w-full sm:w-auto px-6 py-3 bg-white text-sky-700 font-bold rounded-lg hover:bg-sky-50 transition-all duration-200 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+                    </svg>
+                    <span>Ver Ruta Óptima en Mapa</span>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                    </svg>
+                </button>
+            </a>
+            <p class="text-sky-100 text-sm mt-2 text-center sm:text-left">
+                🎯 Haz clic aquí para calcular la ruta más eficiente para tus {{ $stats['repartos_pendientes'] }} entregas pendientes
+            </p>
+        </div>
+        @endif
     </div>
 
     <!-- Repartos del Día -->

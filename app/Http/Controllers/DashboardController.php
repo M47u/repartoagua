@@ -68,6 +68,11 @@ class DashboardController extends Controller
             ->whereDate('fecha', today())
             ->get();
         
-        return view('dashboard', compact('stats', 'repartos_pendientes', 'repartos_hoy'));
+        // Variables para la barra de progreso
+        $total = $stats['repartos_hoy'];
+        $completados = $stats['repartos_entregados_hoy'];
+        $repartos = $repartos_hoy;
+        
+        return view('dashboard', compact('stats', 'repartos_pendientes', 'repartos_hoy', 'total', 'completados', 'repartos'));
     }
 }
