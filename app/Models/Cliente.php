@@ -63,6 +63,14 @@ class Cliente extends Model
     }
 
     /**
+     * Alias para saldo_actual
+     */
+    public function getSaldoAttribute(): float
+    {
+        return $this->saldo_actual;
+    }
+
+    /**
      * Obtiene el estado de cuenta del cliente
      */
     public function getEstadoCuentaAttribute(): string

@@ -63,7 +63,7 @@ class Reparto extends Model
      */
     public function movimientoCuenta(): MorphOne
     {
-        return $this->morphOne(MovimientoCuenta::class, 'referencia');
+        return $this->morphOne(MovimientoCuenta::class, 'referencia', 'referencia_tipo', 'referencia_id');
     }
 
     /**
@@ -88,6 +88,14 @@ class Reparto extends Model
     public function scopeCancelados($query)
     {
         return $query->where('estado', 'cancelado');
+    }
+
+    /**
+     * Verifica si el reparto ya tiene un pago registrado
+     */
+    public function tienePago(): bool
+    {
+        return \App\Models\Pago::where('referencia', 'Reparto #' . $this->id)->exists();
     }
 
     /**

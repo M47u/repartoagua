@@ -36,6 +36,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('repartos.entregar');
     
     // Pagos - Solo admin y administrativo
+    // IMPORTANTE: Rutas específicas ANTES del resource
+    Route::post('pagos/cobro-rapido', [PagoController::class, 'cobroRapido'])
+        ->name('pagos.cobro-rapido');
+    Route::get('api/repartos/{reparto}/cobro-info', [PagoController::class, 'getCobroInfo'])
+        ->name('api.repartos.cobro-info');
     Route::resource('pagos', PagoController::class);
     
     // Usuarios - Admin y gerente

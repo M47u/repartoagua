@@ -2,45 +2,38 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ProductoRequest;
 use App\Models\Producto;
-use Illuminate\Http\Request;
 
 class ProductoController extends Controller
 {
     public function index()
     {
-        // Solo admin y administrativo
-        if (!in_array(auth()->user()->role, ['administrador', 'administrativo'])) {
-            abort(403, 'No tienes permiso para acceder a esta sección.');
-        }
+        $this->authorize('viewAny', Producto::class);
         
-        $productos = Producto::latest()->paginate(15);
+        $productos = Producto::withCount('repartos')->latest()->paginate(15);
         return view('productos.index', compact('productos'));
     }
 
     public function create()
     {
-        if (!in_array(auth()->user()->role, ['administrador', 'administrativo'])) {
-            abort(403);
-        }
+        $this->authorize('create', Producto::class);
         
         return view('productos.create');
     }
 
-    public function store(Request $request)
+    public function store(ProductoRequest $request)
     {
-        if (!in_array(auth()->user()->role, ['administrador', 'administrativo'])) {
-            abort(403);
-        }
+        $this->authorize('create', Producto::class);
         
-        $validated = $request->validate([
-            'nombre' => 'required|string|max:255',
-            'descripcion' => 'nullable|string|max:500',
-            'precio_base' => 'required|numeric|min:0',
-            'activo' => 'boolean',
-        ]);
+        $data = [
+            'nombre' => $request->nombre,
+            'descripcion' => $request->descripcion,
+            'precio_base' => $request->precio_base,
+            'activo' => $request->has('activo') ? 1 : 0,
+        ];
 
-        Producto::create($validated);
+        Producto::create($data);
 
         return redirect()->route('productos.index')
             ->with('success', 'Producto creado exitosamente.');
@@ -48,37 +41,34 @@ class ProductoController extends Controller
 
     public function show(Producto $producto)
     {
-        if (!in_array(auth()->user()->role, ['administrador', 'administrativo'])) {
-            abort(403);
-        }
+        $this->authorize('view', $producto);
         
-        $producto->load('repartos.cliente');
+        $producto->load(['repartos' => function($query) {
+            $query->with('cliente')->latest()->take(10);
+        }]);
+        
         return view('productos.show', compact('producto'));
     }
 
     public function edit(Producto $producto)
     {
-        if (!in_array(auth()->user()->role, ['administrador', 'administrativo'])) {
-            abort(403);
-        }
+        $this->authorize('update', $producto);
         
         return view('productos.edit', compact('producto'));
     }
 
-    public function update(Request $request, Producto $producto)
+    public function update(ProductoRequest $request, Producto $producto)
     {
-        if (!in_array(auth()->user()->role, ['administrador', 'administrativo'])) {
-            abort(403);
-        }
+        $this->authorize('update', $producto);
         
-        $validated = $request->validate([
-            'nombre' => 'required|string|max:255',
-            'descripcion' => 'nullable|string|max:500',
-            'precio_base' => 'required|numeric|min:0',
-            'activo' => 'boolean',
-        ]);
+        $data = [
+            'nombre' => $request->nombre,
+            'descripcion' => $request->descripcion,
+            'precio_base' => $request->precio_base,
+            'activo' => $request->has('activo') ? 1 : 0,
+        ];
 
-        $producto->update($validated);
+        $producto->update($data);
 
         return redirect()->route('productos.index')
             ->with('success', 'Producto actualizado exitosamente.');
@@ -86,8 +76,11 @@ class ProductoController extends Controller
 
     public function destroy(Producto $producto)
     {
-        if (!in_array(auth()->user()->role, ['administrador', 'administrativo'])) {
-            abort(403);
+        $this->authorize('delete', $producto);
+        
+        if ($producto->repartos()->count() > 0) {
+            return redirect()->route('productos.index')
+                ->with('error', 'No se puede eliminar este producto porque tiene repartos asociados.');
         }
         
         $producto->delete();

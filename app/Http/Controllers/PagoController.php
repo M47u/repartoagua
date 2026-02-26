@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Pago;
 use App\Models\Cliente;
+use App\Models\Reparto;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PagoController extends Controller
 {
@@ -106,5 +108,91 @@ class PagoController extends Controller
         
         return redirect()->route('pagos.index')
             ->with('success', 'Pago eliminado exitosamente.');
+    }
+
+    /**
+     * Obtiene información del reparto para el cobro rápido
+     */
+    public function getCobroInfo(Reparto $reparto)
+    {
+        $this->authorize('createQuick', Pago::class);
+
+        // Verificar si ya tiene pago
+        if ($reparto->tienePago()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Este reparto ya tiene un pago registrado.',
+            ], 422);
+        }
+
+        $reparto->load(['cliente', 'producto']);
+
+        return response()->json([
+            'reparto_id' => $reparto->id,
+            'cliente' => [
+                'id' => $reparto->cliente->id,
+                'nombre' => $reparto->cliente->nombre . ' ' . $reparto->cliente->apellido,
+                'saldo' => $reparto->cliente->saldo_actual ?? 0,
+            ],
+            'monto_sugerido' => $reparto->total,
+            'detalle' => $reparto->cantidad . 'x ' . $reparto->producto->nombre,
+        ]);
+    }
+
+    /**
+     * Registra un pago rápido desde el módulo de repartos
+     */
+    public function cobroRapido(Request $request)
+    {
+        $this->authorize('createQuick', Pago::class);
+
+        $validated = $request->validate([
+            'reparto_id' => 'required|exists:repartos,id',
+            'cliente_id' => 'required|exists:clientes,id',
+            'monto' => 'required|numeric|min:0.01',
+            'metodo_pago' => 'required|in:efectivo,transferencia,cuenta_corriente',
+            'notas' => 'nullable|string|max:500',
+        ]);
+
+        // Verificar que el reparto no tenga ya un pago registrado
+        $reparto = Reparto::findOrFail($validated['reparto_id']);
+        if ($reparto->tienePago()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Este reparto ya tiene un pago registrado.',
+            ], 422);
+        }
+
+        try {
+            DB::beginTransaction();
+
+            // Crear el pago
+            $pago = Pago::create([
+                'cliente_id' => $validated['cliente_id'],
+                'monto' => $validated['monto'],
+                'metodo_pago' => $validated['metodo_pago'],
+                'referencia' => 'Reparto #' . $validated['reparto_id'],
+                'notas' => $validated['notas'] ?? null,
+                'fecha' => now()->toDateString(),
+                'fecha_pago' => now(),
+                'registrado_por' => auth()->id(),
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pago registrado exitosamente',
+                'pago_id' => $pago->id,
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al registrar el pago: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 }

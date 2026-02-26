@@ -47,6 +47,6 @@ class Pago extends Model
      */
     public function movimientoCuenta(): MorphOne
     {
-        return $this->morphOne(MovimientoCuenta::class, 'referencia');
+        return $this->morphOne(MovimientoCuenta::class, 'referencia', 'referencia_tipo', 'referencia_id');
     }
 }

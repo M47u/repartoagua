@@ -32,6 +32,14 @@ class PagoPolicy
     }
 
     /**
+     * Determine whether the user can create quick payments (for delivery drivers)
+     */
+    public function createQuick(User $user): bool
+    {
+        return in_array($user->role, ['administrador', 'administrativo', 'repartidor']);
+    }
+
+    /**
      * Determine whether the user can update the model.
      */
     public function update(User $user, Pago $pago): bool

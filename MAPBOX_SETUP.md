@@ -28,7 +28,7 @@ Abre el archivo `.env` y reemplaza:
 
 ```env
 MAPBOX_ACCESS_TOKEN=your_mapbox_token_here
-```
+``` 
 
 Por tu token real:
 

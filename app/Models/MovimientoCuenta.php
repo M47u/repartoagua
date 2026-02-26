@@ -42,6 +42,6 @@ class MovimientoCuenta extends Model
      */
     public function referencia(): MorphTo
     {
-        return $this->morphTo();
+        return $this->morphTo('referencia', 'referencia_tipo', 'referencia_id');
     }
 }

@@ -80,12 +80,26 @@ path.leaflet-interactive {
         <div class="mb-4 p-4 bg-gradient-to-r from-emerald-50 to-sky-50 rounded-lg border-2 border-emerald-200">
             <div class="flex flex-col sm:flex-row gap-3 items-center">
                 @if(auth()->user()->role !== 'repartidor')
-                <select id="filtroRepartidor" onchange="filtrarPorRepartidor(this.value)" class="w-full sm:w-auto px-4 py-3 text-sm border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500">
-                    <option value="">Todos los repartidores</option>
-                    @foreach($repartidores as $repartidor)
-                        <option value="{{ $repartidor->id }}">{{ $repartidor->name }}</option>
-                    @endforeach
-                </select>
+                <div class="w-full sm:w-auto relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
+                    </div>
+                    <select id="filtroRepartidor" 
+                            onchange="filtrarPorRepartidor(this.value)" 
+                            class="w-full sm:w-64 pl-12 pr-10 py-3.5 text-sm font-medium text-slate-700 bg-white border-2 border-slate-300 rounded-lg shadow-sm hover:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all cursor-pointer appearance-none">
+                        <option value="">👥 Todos los repartidores</option>
+                        @foreach($repartidores as $repartidor)
+                            <option value="{{ $repartidor->id }}">🚚 {{ $repartidor->name }}</option>
+                        @endforeach
+                    </select>
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </div>
+                </div>
                 @endif
                 
                 <button onclick="generarRutaOptima()" class="w-full sm:flex-1 px-6 py-4 text-base bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-lg hover:from-emerald-600 hover:to-emerald-700 transition-all font-bold flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:scale-105">
@@ -202,6 +216,28 @@ path.leaflet-interactive {
                                     </a>
                                     @endcan
 
+                                    @if($reparto->estado === 'entregado' && !$reparto->tiene_pago)
+                                    @can('createQuick', App\Models\Pago::class)
+                                    <button 
+                                        onclick="abrirModalCobro({{ $reparto->id }})" 
+                                        class="text-emerald-600 hover:text-emerald-900 transition-colors" 
+                                        title="Cobrar"
+                                    >
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                        </svg>
+                                    </button>
+                                    @endcan
+                                    @endif
+
+                                    @if($reparto->estado === 'entregado' && $reparto->tiene_pago)
+                                    <span class="text-emerald-600" title="Ya cobrado">
+                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                    </span>
+                                    @endif
+
                                     @can('update', $reparto)
                                     <a href="{{ route('repartos.edit', $reparto) }}" class="text-amber-600 hover:text-amber-900" title="Editar">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -273,6 +309,145 @@ path.leaflet-interactive {
         </div>
         @endif
     </x-card>
+</div>
+
+<!-- Modal de Cobro Rápido -->
+<div id="modal-cobro-rapido" class="hidden fixed inset-0 bg-slate-900/50 flex items-center justify-center p-4 backdrop-blur-sm" style="z-index: 9999;">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-emerald-500 to-emerald-600 px-6 py-5 rounded-t-2xl">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-white">💵 Cobrar Pago</h3>
+                        <p class="text-emerald-100 text-sm">Registro rápido</p>
+                    </div>
+                </div>
+                <button onclick="cerrarModalCobro()" class="text-white/80 hover:text-white transition-colors p-2">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <form id="form-cobro-rapido" class="p-6 space-y-5">
+            <input type="hidden" id="reparto-id" name="reparto_id">
+            <input type="hidden" id="cliente-id" name="cliente_id">
+            
+            <!-- Info del Cliente -->
+            <div class="bg-sky-50 border-2 border-sky-200 rounded-xl p-4">
+                <div class="flex items-start justify-between">
+                    <div class="flex-1">
+                        <label class="text-xs font-semibold text-sky-700 uppercase tracking-wide">Cliente</label>
+                        <p id="cobro-cliente-nombre" class="text-lg font-bold text-slate-900 mt-1">-</p>
+                        <p id="cobro-detalle" class="text-sm text-slate-600 mt-1">-</p>
+                    </div>
+                    <div class="text-right">
+                        <label class="text-xs font-semibold text-sky-700 uppercase tracking-wide">Saldo</label>
+                        <p id="cobro-saldo-actual" class="text-xl font-bold mt-1">$0.00</p>
+                        <p id="cobro-saldo-texto" class="text-xs text-slate-500 mt-1">-</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monto -->
+            <div>
+                <label for="cobro-monto" class="block text-sm font-semibold text-slate-700 mb-2">
+                    Monto a cobrar *
+                </label>
+                <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-lg">$</span>
+                    <input 
+                        type="number" 
+                        id="cobro-monto" 
+                        name="monto" 
+                        step="0.01" 
+                        min="0.01"
+                        required
+                        class="w-full pl-10 pr-4 py-4 text-lg font-semibold border-2 border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                        placeholder="0.00"
+                    >
+                </div>
+                <button 
+                    type="button" 
+                    onclick="usarMontoCompleto()" 
+                    class="mt-2 text-sm text-emerald-600 hover:text-emerald-700 font-medium flex items-center gap-1"
+                >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                    </svg>
+                    Usar monto completo del reparto
+                </button>
+            </div>
+
+            <!-- Método de Pago -->
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-3">
+                    ¿Cómo pagó? *
+                </label>
+                <div class="grid grid-cols-2 gap-3">
+                    <label class="relative cursor-pointer">
+                        <input type="radio" name="metodo_pago" value="efectivo" class="peer sr-only" required>
+                        <div class="h-20 border-2 border-slate-300 rounded-xl flex flex-col items-center justify-center gap-2 transition-all peer-checked:border-emerald-500 peer-checked:bg-emerald-50 peer-checked:shadow-md hover:border-slate-400">
+                            <span class="text-3xl">💵</span>
+                            <span class="text-sm font-semibold text-slate-700">Efectivo</span>
+                        </div>
+                    </label>
+                    
+                    <label class="relative cursor-pointer">
+                        <input type="radio" name="metodo_pago" value="transferencia" class="peer sr-only">
+                        <div class="h-20 border-2 border-slate-300 rounded-xl flex flex-col items-center justify-center gap-2 transition-all peer-checked:border-emerald-500 peer-checked:bg-emerald-50 peer-checked:shadow-md hover:border-slate-400">
+                            <span class="text-3xl">🏦</span>
+                            <span class="text-sm font-semibold text-slate-700">Transferencia</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Notas -->
+            <div>
+                <label for="cobro-notas" class="block text-sm font-semibold text-slate-700 mb-2">
+                    Notas (opcional)
+                </label>
+                <textarea 
+                    id="cobro-notas" 
+                    name="notas" 
+                    rows="2"
+                    class="w-full px-4 py-3 border-2 border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 resize-none"
+                    placeholder="Detalles adicionales..."
+                ></textarea>
+            </div>
+
+            <!-- Botones -->
+            <div class="flex gap-3 pt-2">
+                <button 
+                    type="button" 
+                    onclick="cerrarModalCobro()" 
+                    class="flex-1 px-6 py-4 bg-slate-100 text-slate-700 rounded-xl font-semibold hover:bg-slate-200 transition-colors"
+                >
+                    Cancelar
+                </button>
+                <button 
+                    type="button"
+                    id="btn-registrar-pago"
+                    onclick="procesarCobroRapido()" 
+                    class="flex-1 px-6 py-4 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-xl font-bold hover:from-emerald-600 hover:to-emerald-700 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center gap-2"
+                >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    Registrar Pago
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
 
 @push('scripts')
@@ -858,6 +1033,152 @@ function filtrarPorRepartidor(repartidorId) {
 
 function centrarMapa() {
     map.setView([-26.1857, -58.1756], 13);
+}
+
+// ============================================
+// SISTEMA DE COBRO RÁPIDO
+// ============================================
+let cobroData = {
+    reparto_id: null,
+    cliente: null,
+    monto_sugerido: 0,
+    detalle: ''
+};
+
+async function abrirModalCobro(repartoId) {
+    try {
+        // Obtener información del reparto
+        const response = await fetch(`/api/repartos/${repartoId}/cobro-info`);
+        
+        if (!response.ok) {
+            const error = await response.json();
+            alert('⚠️ ' + (error.message || 'No se puede cobrar este reparto'));
+            return;
+        }
+        
+        const data = await response.json();
+        
+        cobroData = {
+            reparto_id: repartoId,
+            cliente: data.cliente,
+            monto_sugerido: parseFloat(data.monto_sugerido) || 0,
+            detalle: data.detalle
+        };
+        
+        // Llenar el modal con los datos
+        document.getElementById('cobro-cliente-nombre').textContent = data.cliente.nombre;
+        
+        // Aplicar color según el saldo
+        const saldoElement = document.getElementById('cobro-saldo-actual');
+        const saldo = parseFloat(data.cliente.saldo) || 0;
+        saldoElement.textContent = `$${Math.abs(saldo).toFixed(2)}`;
+        saldoElement.className = saldo > 0 
+            ? 'text-xl font-bold mt-1 text-red-600' 
+            : (saldo < 0 ? 'text-xl font-bold mt-1 text-emerald-600' : 'text-xl font-bold mt-1 text-slate-600');
+        
+        document.getElementById('cobro-saldo-texto').textContent = saldo > 0 
+            ? 'debe' 
+            : (saldo < 0 ? 'a favor' : 'sin saldo');
+        
+        document.getElementById('cobro-detalle').textContent = data.detalle;
+        document.getElementById('cobro-monto').value = cobroData.monto_sugerido.toFixed(2);
+        document.getElementById('cliente-id').value = data.cliente.id;
+        document.getElementById('reparto-id').value = repartoId;
+        
+        // Mostrar modal
+        document.getElementById('modal-cobro-rapido').classList.remove('hidden');
+    } catch (error) {
+        console.error('Error al cargar datos del cobro:', error);
+        alert('Error al cargar la información del reparto. Por favor, intenta de nuevo.');
+    }
+}
+
+function cerrarModalCobro() {
+    document.getElementById('modal-cobro-rapido').classList.add('hidden');
+    document.getElementById('form-cobro-rapido').reset();
+}
+
+async function procesarCobroRapido() {
+    const form = document.getElementById('form-cobro-rapido');
+    const formData = new FormData(form);
+    const btn = document.getElementById('btn-registrar-pago');
+    
+    // Validar monto
+    const monto = parseFloat(formData.get('monto'));
+    if (!monto || monto <= 0) {
+        alert('Por favor, ingresa un monto válido');
+        return;
+    }
+    
+    // Validar método de pago
+    if (!formData.get('metodo_pago')) {
+        alert('Por favor, selecciona un método de pago');
+        return;
+    }
+    
+    // Deshabilitar botón
+    btn.disabled = true;
+    btn.innerHTML = `
+        <svg class="animate-spin h-5 w-5 mr-2 inline" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        Procesando...
+    `;
+    
+    try {
+        const response = await fetch('{{ route("pagos.cobro-rapido") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                reparto_id: formData.get('reparto_id'),
+                cliente_id: formData.get('cliente_id'),
+                monto: monto,
+                metodo_pago: formData.get('metodo_pago'),
+                notas: formData.get('notas') || null
+            })
+        });
+        
+        const result = await response.json();
+        
+        // Si el servidor retorna error (422, 500, etc)
+        if (!response.ok) {
+            throw new Error(result.message || 'Error al procesar el pago');
+        }
+        
+        if (result.success) {
+            // Mostrar mensaje de éxito
+            alert('✅ Pago registrado exitosamente\n\nMonto: $' + monto.toFixed(2) + '\nCliente: ' + cobroData.cliente.nombre);
+            
+            // Cerrar modal
+            cerrarModalCobro();
+            
+            // Recargar página para actualizar datos
+            setTimeout(() => location.reload(), 500);
+        } else {
+            throw new Error(result.message || 'Error al procesar el pago');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('❌ Error al registrar el pago\n\n' + error.message);
+    } finally {
+        // Rehabilitar botón
+        btn.disabled = false;
+        btn.innerHTML = `
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            Registrar Pago
+        `;
+    }
+}
+
+function usarMontoCompleto() {
+    document.getElementById('cobro-monto').value = cobroData.monto_sugerido.toFixed(2);
 }
 
 // Inicializar cuando el DOM esté listo
