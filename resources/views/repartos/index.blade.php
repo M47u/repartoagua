@@ -8,7 +8,6 @@
 
 @push('styles')
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
 <style>
 .leaflet-popup-content {
     margin: 8px 12px;
@@ -156,7 +155,7 @@ path.leaflet-interactive {
                 </thead>
                 <tbody class="bg-white divide-y divide-slate-200">
                     @forelse($repartos as $reparto)
-                        <tr class="hover:bg-slate-50 transition-colors">
+                        <tr class="hover:bg-slate-50 transition-colors reparto-row" data-repartidor-id="{{ $reparto->repartidor_id }}">
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">
                                 #{{ $reparto->id }}
                             </td>
@@ -278,20 +277,24 @@ path.leaflet-interactive {
 
 @push('scripts')
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-<script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
 <script>
+const MAPBOX_TOKEN = '{{ config('services.mapbox.token', env('MAPBOX_ACCESS_TOKEN')) }}';
 let map;
 let markers = [];
-let routeControl = null;
 let routePolylines = [];
 let repartosData = @json($repartos->items());
+let ubicacionActual = null;
+let marcadorUbicacionActual = null;
 
-// Inicializar mapa centrado en Formosa, Argentina
+// Inicializar mapa centrado en Formosa, Argentina con Mapbox
 function initMap() {
     map = L.map('map').setView([-26.1857, -58.1756], 13);
     
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    // Usar tiles de Mapbox (mejor calidad y datos actualizados)
+    L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/{z}/{x}/{y}?access_token=' + MAPBOX_TOKEN, {
+        attribution: '© <a href="https://www.mapbox.com/about/maps/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        tileSize: 512,
+        zoomOffset: -1,
         maxZoom: 19
     }).addTo(map);
     
@@ -386,16 +389,70 @@ function calcularDistancia(lat1, lon1, lat2, lon2) {
     return R * c;
 }
 
+// Obtener ruta desde Mapbox Directions API con tráfico en tiempo real
+async function obtenerRutaMapbox(coordenadas) {
+    // Formatear coordenadas para Mapbox: "lng,lat;lng,lat;..."
+    const coords = coordenadas.map(c => `${c.lng},${c.lat}`).join(';');
+    
+    // Usar perfil driving-traffic para considerar tráfico en tiempo real
+    // alternatives=false: solo la mejor ruta
+    // geometries=geojson: respuesta en formato GeoJSON
+    // overview=full: geometría completa de la ruta
+    // steps=true: instrucciones detalladas
+    // exclude=unpaved: evitar calles sin pavimentar
+    const url = `https://api.mapbox.com/directions/v5/mapbox/driving-traffic/${coords}` +
+                `?alternatives=false` +
+                `&geometries=geojson` +
+                `&overview=full` +
+                `&steps=true` +
+                `&exclude=unpaved` +
+                `&access_token=${MAPBOX_TOKEN}`;
+    
+    try {
+        console.log('🗺️  Solicitando ruta a Mapbox...');
+        const response = await fetch(url);
+        
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.code !== 'Ok' || !data.routes || data.routes.length === 0) {
+            throw new Error('No se pudo calcular la ruta');
+        }
+        
+        const route = data.routes[0];
+        console.log('✅ Ruta obtenida desde Mapbox');
+        console.log('📏 Distancia:', (route.distance / 1000).toFixed(2), 'km');
+        console.log('⏱️  Duración:', (route.duration / 60).toFixed(0), 'minutos');
+        
+        return {
+            geometry: route.geometry.coordinates,
+            distance: route.distance / 1000, // convertir a km
+            duration: route.duration / 60 // convertir a minutos
+        };
+    } catch (error) {
+        console.error('❌ Error al obtener ruta de Mapbox:', error);
+        throw error;
+    }
+}
+
 // Algoritmo del vecino más cercano para calcular ruta óptima
-function calcularRutaOptima(puntos) {
+function calcularRutaOptima(puntos, puntoInicio = null) {
     if (puntos.length === 0) return [];
     
     const rutaOptima = [];
     const pendientes = [...puntos];
     
-    // Punto de inicio (primer reparto o coordenada base)
-    let actual = pendientes.shift();
-    rutaOptima.push(actual);
+    // Punto de inicio: ubicación actual o primer reparto
+    let actual;
+    if (puntoInicio) {
+        actual = puntoInicio;
+    } else {
+        actual = pendientes.shift();
+        rutaOptima.push(actual);
+    }
     
     // Ir al punto más cercano no visitado
     while (pendientes.length > 0) {
@@ -421,8 +478,86 @@ function calcularRutaOptima(puntos) {
     return rutaOptima;
 }
 
+// Obtener ubicación actual del dispositivo
+function obtenerUbicacionActual() {
+    return new Promise((resolve, reject) => {
+        if (!navigator.geolocation) {
+            reject(new Error('Geolocalización no soportada por el navegador'));
+            return;
+        }
+        
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                ubicacionActual = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                };
+                resolve(ubicacionActual);
+            },
+            (error) => {
+                console.error('Error al obtener ubicación:', error);
+                reject(error);
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            }
+        );
+    });
+}
+
+// Marcar ubicación actual en el mapa
+function marcarUbicacionActual(lat, lng) {
+    // Remover marcador anterior si existe
+    if (marcadorUbicacionActual) {
+        map.removeLayer(marcadorUbicacionActual);
+    }
+    
+    const iconoActual = L.divIcon({
+        className: 'custom-ubicacion-actual',
+        html: `<div style="
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: 5px solid white;
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            animation: pulse 2s infinite;
+        ">📍</div>
+        <style>
+            @keyframes pulse {
+                0%, 100% { transform: scale(1); box-shadow: 0 4px 20px rgba(59, 130, 246, 0.6); }
+                50% { transform: scale(1.1); box-shadow: 0 6px 30px rgba(59, 130, 246, 0.9); }
+            }
+        </style>`,
+        iconSize: [58, 58],
+        iconAnchor: [29, 29]
+    });
+    
+    marcadorUbicacionActual = L.marker([lat, lng], { 
+        icon: iconoActual,
+        zIndexOffset: 3000 
+    }).addTo(map);
+    
+    marcadorUbicacionActual.bindPopup(`
+        <div style="min-width: 200px;">
+            <h3 class="font-bold text-blue-600 mb-2 text-lg">📍 Tu Ubicación Actual</h3>
+            <p class="text-sm text-slate-700">Punto de partida de la ruta</p>
+            <p class="text-xs text-slate-500 mt-2">Lat: ${lat.toFixed(6)}</p>
+            <p class="text-xs text-slate-500">Lng: ${lng.toFixed(6)}</p>
+        </div>
+    `);
+    
+    routePolylines.push(marcadorUbicacionActual);
+}
+
 // Generar ruta óptima
-function generarRutaOptima() {
+async function generarRutaOptima() {
     console.log('🎯 Iniciando cálculo de ruta óptima...');
     
     // Limpiar ruta anterior
@@ -486,44 +621,94 @@ function generarRutaOptima() {
         return;
     }
     
+    // Obtener ubicación actual del usuario
+    let puntoInicio = null;
+    try {
+        const ubicacion = await obtenerUbicacionActual();
+        console.log('✅ Ubicación actual obtenida:', ubicacion);
+        puntoInicio = {
+            lat: ubicacion.lat,
+            lng: ubicacion.lng,
+            esUbicacionActual: true
+        };
+        marcarUbicacionActual(ubicacion.lat, ubicacion.lng);
+    } catch (error) {
+        console.warn('⚠️ No se pudo obtener ubicación actual:', error.message);
+        const usarUbicacion = confirm(
+            '⚠️ No se pudo acceder a tu ubicación actual.\n\n' +
+            'Razones posibles:\n' +
+            '- Permisos de ubicación denegados\n' +
+            '- Navegador no soporta geolocalización\n' +
+            '- Conexión no segura (requiere HTTPS)\n\n' +
+            '¿Deseas continuar usando el primer punto como inicio?'
+        );
+        if (!usarUbicacion) {
+            markers.forEach(marker => marker.setOpacity(1));
+            return;
+        }
+    }
+    
     // Calcular ruta óptima
-    const rutaOptima = calcularRutaOptima(puntos);
+    const rutaOptima = calcularRutaOptima(puntos, puntoInicio);
     console.log('✅ Ruta óptima calculada:', rutaOptima.length, 'paradas');
     
-    // Usar Leaflet Routing Machine para routing real por calles
-    if (typeof L.Routing !== 'undefined') {
-        // Crear waypoints para el routing
-        const waypoints = rutaOptima.map(p => L.latLng(p.lat, p.lng));
+    // Preparar coordenadas para Mapbox Directions API
+    const coordenadasRuta = [];
+    if (puntoInicio) {
+        coordenadasRuta.push(puntoInicio);
+    }
+    coordenadasRuta.push(...rutaOptima);
+    
+    // Obtener ruta desde Mapbox con tráfico en tiempo real
+    try {
+        const rutaMapbox = await obtenerRutaMapbox(coordenadasRuta);
         
-        routeControl = L.Routing.control({
-            waypoints: waypoints,
-            routeWhileDragging: false,
-            addWaypoints: false,
-            draggableWaypoints: false,
-            fitSelectedRoutes: true,
-            showAlternatives: false,
-            lineOptions: {
-                styles: [
-                    {color: '#ffffff', opacity: 0.6, weight: 12},
-                    {color: '#ef4444', opacity: 0.9, weight: 8}
-                ],
-                extendToWaypoints: true,
-                missingRouteTolerance: 0
-            },
-            createMarker: function(i, waypoint, n) {
-                return null; // No crear marcadores del routing
-            }
+        // Convertir geometría de Mapbox (lng,lat) a Leaflet (lat,lng)
+        const coordsLeaflet = rutaMapbox.geometry.map(coord => [coord[1], coord[0]]);
+        
+        // Crear línea de borde blanco (efecto de sombra)
+        const polylineBorder = L.polyline(coordsLeaflet, {
+            color: '#ffffff',
+            weight: 12,
+            opacity: 0.6,
+            smoothFactor: 1,
+            pane: 'shadowPane'
         }).addTo(map);
         
-        routePolylines.push(routeControl);
-        console.log('✅ Routing con calles activado usando Leaflet Routing Machine');
-    } else {
-        // Fallback: línea recta si no está disponible routing
-        console.warn('⚠️ Leaflet Routing Machine no disponible, usando líneas rectas');
+        // Crear línea principal roja
+        const polyline = L.polyline(coordsLeaflet, {
+            color: '#ef4444',
+            weight: 8,
+            opacity: 0.9,
+            smoothFactor: 1,
+            className: 'route-line',
+            pane: 'markerPane'
+        }).addTo(map);
         
-        const coordenadas = rutaOptima.map(p => [p.lat, p.lng]);
+        routePolylines.push(polylineBorder);
+        routePolylines.push(polyline);
         
-        // Crear línea principal (gruesa y visible)
+        // Ajustar vista al polyline
+        map.fitBounds(polyline.getBounds(), { padding: [50, 50] });
+        
+        console.log('✅ Ruta dibujada usando Mapbox Directions API');
+        console.log('🚗 Considera tráfico en tiempo real');
+        console.log('🛣️  Evita calles sin pavimentar');
+        
+        // Guardar info de la ruta para mostrar
+        rutaOptima.distanciaReal = rutaMapbox.distance;
+        rutaOptima.duracionReal = rutaMapbox.duration;
+        
+    } catch (error) {
+        console.error('⚠️ Error al obtener ruta de Mapbox, usando líneas rectas', error);
+        
+        // Fallback: línea recta si falla Mapbox
+        const coordenadas = [];
+        if (puntoInicio) {
+            coordenadas.push([puntoInicio.lat, puntoInicio.lng]);
+        }
+        coordenadas.push(...rutaOptima.map(p => [p.lat, p.lng]));
+        
         const polylineBorder = L.polyline(coordenadas, {
             color: '#ffffff',
             weight: 12,
@@ -543,9 +728,7 @@ function generarRutaOptima() {
         
         routePolylines.push(polylineBorder);
         routePolylines.push(polyline);
-        console.log('✅ Línea dibujada en el mapa - Color: rojo, grosor: 8px');
         
-        // Ajustar vista al primer polyline
         map.fitBounds(polyline.getBounds(), { padding: [50, 50] });
     }
     
@@ -594,8 +777,18 @@ function generarRutaOptima() {
     
     console.log('✅ Todos los marcadores numerados agregados');
     
-    // Calcular distancia total
+    // Calcular distancia total aproximada (línea recta)
     let distanciaTotal = 0;
+    
+    // Distancia desde ubicación actual al primer punto
+    if (puntoInicio && rutaOptima.length > 0) {
+        distanciaTotal += calcularDistancia(
+            puntoInicio.lat, puntoInicio.lng,
+            rutaOptima[0].lat, rutaOptima[0].lng
+        );
+    }
+    
+    // Distancia entre los puntos de entrega
     for (let i = 0; i < rutaOptima.length - 1; i++) {
         distanciaTotal += calcularDistancia(
             rutaOptima[i].lat, rutaOptima[i].lng,
@@ -610,29 +803,37 @@ function generarRutaOptima() {
         ? `⚠️ ATENCIÓN: Se encontraron ${repartosPendientes.length} repartos pendientes,\npero solo ${puntos.length} tienen coordenadas válidas.\n\n`
         : '';
     
-    alert(`✅ ¡Ruta óptima calculada!\n\n` +
+    const mensajeInicio = puntoInicio 
+        ? '📍 Punto de partida: Tu ubicación actual\n'
+        : '📍 Punto de partida: Primera parada\n';
+    
+    // Usar distancia y duración real de Mapbox si están disponibles
+    const infoDistancia = rutaOptima.distanciaReal 
+        ? `📏 Distancia por calles: ${rutaOptima.distanciaReal.toFixed(2)} km\n⏱️  Tiempo estimado: ${Math.round(rutaOptima.duracionReal)} minutos\n🚗 Considera tráfico en tiempo real\n`
+        : `📏 Distancia aproximada: ${distanciaTotal.toFixed(2)} km\n`;
+    
+    alert(`✅ ¡Ruta óptima calculada con Mapbox!\n\n` +
           mensaje +
+          mensajeInicio +
           `📍 Paradas: ${rutaOptima.length}\n` +
-          `📏 Distancia aproximada: ${distanciaTotal.toFixed(2)} km\n\n` +
-          `La ruta se muestra siguiendo las calles con una línea roja\n` +
-          `y números AZULES grandes indicando el orden de entrega.\n\n` +
+          infoDistancia +
+          `\nLa ruta se muestra siguiendo las calles con una línea roja\n` +
+          `y números AZULES grandes indicando el orden de entrega.\n` +
+          `Se evitan calles sin pavimentar.\n\n` +
           `Primera parada: ${rutaOptima[0].reparto.cliente.nombre}\n` +
           `Última parada: ${rutaOptima[rutaOptima.length-1].reparto.cliente.nombre}`);
 }
 
 // Limpiar ruta del mapa
 function limpiarRuta() {
-    // Remover control de routing si existe
-    if (routeControl) {
-        map.removeControl(routeControl);
-        routeControl = null;
-    }
-    
-    // Remover polylines y marcadores
+    // Remover polylines y marcadores de ruta
     routePolylines.forEach(item => {
         if (item) map.removeLayer(item);
     });
     routePolylines = [];
+    
+    // Restaurar opacidad de marcadores originales
+    markers.forEach(marker => marker.setOpacity(1));
     
     console.log('🧹 Ruta limpiada');
 }
@@ -640,6 +841,19 @@ function limpiarRuta() {
 function filtrarPorRepartidor(repartidorId) {
     limpiarRuta();
     cargarMarcadores(repartidorId || null);
+    
+    // Filtrar filas de la tabla
+    const filas = document.querySelectorAll('.reparto-row');
+    filas.forEach(fila => {
+        const filaRepartidorId = fila.getAttribute('data-repartidor-id');
+        if (!repartidorId || filaRepartidorId == repartidorId) {
+            fila.style.display = '';
+        } else {
+            fila.style.display = 'none';
+        }
+    });
+    
+    console.log('🔍 Filtrado por repartidor:', repartidorId || 'todos');
 }
 
 function centrarMapa() {
