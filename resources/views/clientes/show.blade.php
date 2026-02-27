@@ -128,17 +128,15 @@
                     </p>
                 </div>
 
-                @if($cliente->precio_por_bidon)
                 <div>
-                    <label class="text-sm font-medium text-slate-500">Precio por Bidón</label>
-                    <p class="text-slate-900 font-semibold text-lg">${{ number_format($cliente->precio_por_bidon, 2) }}</p>
+                    <label class="text-sm font-medium text-slate-500">Producto</label>
+                    @if($cliente->producto)
+                        <p class="text-slate-900 font-semibold">{{ $cliente->producto->nombre }}</p>
+                        <p class="text-slate-500 text-sm">${{ number_format($cliente->producto->precio_base, 2) }}</p>
+                    @else
+                        <p class="text-slate-500 italic">Sin producto predeterminado</p>
+                    @endif
                 </div>
-                @else
-                <div>
-                    <label class="text-sm font-medium text-slate-500">Precio por Bidón</label>
-                    <p class="text-slate-500 italic">Precio predeterminado del sistema</p>
-                </div>
-                @endif
 
                 <div>
                     <label class="text-sm font-medium text-slate-500">Saldo en Cuenta Corriente</label>

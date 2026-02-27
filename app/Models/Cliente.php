@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Cliente extends Model
@@ -16,6 +17,7 @@ class Cliente extends Model
         'telefono',
         'email',
         'tipo_cliente',
+        'producto_id',
         'precio_por_bidon',
         'observaciones',
         'activo',
@@ -27,6 +29,14 @@ class Cliente extends Model
         'precio_por_bidon' => 'decimal:2',
         'activo' => 'boolean',
     ];
+
+    /**
+     * Producto predeterminado del cliente
+     */
+    public function producto(): BelongsTo
+    {
+        return $this->belongsTo(Producto::class);
+    }
 
     /**
      * Repartos del cliente

@@ -47,8 +47,8 @@ class DashboardController extends Controller
             ->count();
         
         // Ingresos del mes
-        $ingresosMes = Pago::whereMonth('fecha_pago', now()->month)
-            ->whereYear('fecha_pago', now()->year)
+        $ingresosMes = Pago::whereMonth('fecha', now()->month)
+            ->whereYear('fecha', now()->year)
             ->sum('monto');
         
         // Repartos recientes de hoy
@@ -59,11 +59,11 @@ class DashboardController extends Controller
             ->get();
         
         // Top 5 clientes del mes
-        $topClientes = Cliente::select('clientes.*', DB::raw('COUNT(repartos.id) as total_bidones'))
+        $topClientes = Cliente::select('clientes.id', 'clientes.nombre', 'clientes.apellido', DB::raw('COUNT(repartos.id) as total_bidones'))
             ->join('repartos', 'clientes.id', '=', 'repartos.cliente_id')
             ->whereMonth('repartos.created_at', now()->month)
             ->whereYear('repartos.created_at', now()->year)
-            ->groupBy('clientes.id')
+            ->groupBy('clientes.id', 'clientes.nombre', 'clientes.apellido')
             ->orderByDesc('total_bidones')
             ->take(5)
             ->get();

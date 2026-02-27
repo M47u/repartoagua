@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cliente;
+use App\Models\Producto;
 use Illuminate\Http\Request;
 
 class ClienteController extends Controller
@@ -20,8 +21,10 @@ class ClienteController extends Controller
     public function create()
     {
         $this->authorize('create', Cliente::class);
-        
-        return view('clientes.create');
+
+        $productos = Producto::activos()->get();
+
+        return view('clientes.create', compact('productos'));
     }
 
     public function store(Request $request)
@@ -37,7 +40,7 @@ class ClienteController extends Controller
             'ciudad' => 'required|string|max:255',
             'email' => 'nullable|email|unique:clientes,email|max:255',
             'tipo_cliente' => 'required|in:hogar,comercio,empresa',
-            'precio_por_bidon' => 'nullable|numeric|min:0',
+            'producto_id' => 'nullable|exists:productos,id',
             'activo' => 'boolean',
             'latitude' => 'nullable|numeric|between:-90,90',
             'longitude' => 'nullable|numeric|between:-180,180',
@@ -71,8 +74,10 @@ class ClienteController extends Controller
     public function edit(Cliente $cliente)
     {
         $this->authorize('update', $cliente);
-        
-        return view('clientes.edit', compact('cliente'));
+
+        $productos = Producto::activos()->get();
+
+        return view('clientes.edit', compact('cliente', 'productos'));
     }
 
     public function update(Request $request, Cliente $cliente)
@@ -88,7 +93,7 @@ class ClienteController extends Controller
             'ciudad' => 'required|string|max:255',
             'email' => 'nullable|email|unique:clientes,email,' . $cliente->id . '|max:255',
             'tipo_cliente' => 'required|in:hogar,comercio,empresa',
-            'precio_por_bidon' => 'nullable|numeric|min:0',
+            'producto_id' => 'nullable|exists:productos,id',
             'activo' => 'boolean',
             'latitude' => 'nullable|numeric|between:-90,90',
             'longitude' => 'nullable|numeric|between:-180,180',

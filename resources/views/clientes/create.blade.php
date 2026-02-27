@@ -249,26 +249,26 @@
                             @enderror
                         </div>
 
-                        <!-- Precio por Bidón -->
+                        <!-- Producto Predeterminado -->
                         <div>
-                            <label for="precio_por_bidon" class="block text-sm font-medium text-slate-700 mb-2">
-                                Precio por Bidón
+                            <label for="producto_id" class="block text-sm font-medium text-slate-700 mb-2">
+                                Producto
                             </label>
-                            <div class="relative">
-                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">$</span>
-                                <input type="number" 
-                                       id="precio_por_bidon" 
-                                       name="precio_por_bidon" 
-                                       value="{{ old('precio_por_bidon') }}" 
-                                       step="0.01"
-                                       min="0"
-                                       placeholder="0.00"
-                                       class="w-full pl-8 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent @error('precio_por_bidon') border-red-500 @enderror">
-                            </div>
-                            @error('precio_por_bidon')
+                            <select id="producto_id"
+                                    name="producto_id"
+                                    class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent @error('producto_id') border-red-500 @enderror">
+                                <option value="">— Sin producto predeterminado —</option>
+                                @foreach($productos as $producto)
+                                    <option value="{{ $producto->id }}"
+                                            {{ old('producto_id') == $producto->id ? 'selected' : '' }}>
+                                        {{ $producto->nombre }} — ${{ number_format($producto->precio_base, 2) }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('producto_id')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
-                            <p class="mt-1 text-xs text-slate-500">Dejar vacío para usar el precio predeterminado</p>
+                            <p class="mt-1 text-xs text-slate-500">Se usará como producto predeterminado al crear repartos</p>
                         </div>
 
                         <!-- Estado -->
