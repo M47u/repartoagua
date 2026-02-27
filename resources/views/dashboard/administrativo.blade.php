@@ -101,13 +101,19 @@
                 @forelse($repartosRecientes ?? [] as $reparto)
                     <div class="flex items-center justify-between p-4 hover:bg-slate-50 transition-colors">
                         <div class="flex items-center gap-4 flex-1">
-                            <div class="text-center">
-                                <p class="text-2xl font-bold text-slate-900">{{ \Carbon\Carbon::parse($reparto->fecha)->format('H:i') }}</p>
-                                <p class="text-xs text-slate-500">{{ \Carbon\Carbon::parse($reparto->fecha)->format('d/m') }}</p>
+                            <div class="w-12 h-12 bg-gradient-to-br from-sky-400 to-sky-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"></path>
+                                </svg>
                             </div>
                             <div class="flex-1">
                                 <p class="font-semibold text-slate-900">{{ $reparto->cliente->nombre }}</p>
-                                <p class="text-sm text-slate-500">{{ $reparto->repartidor->name }}</p>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <p class="text-sm text-slate-500">{{ $reparto->repartidor->name }}</p>
+                                    <span class="text-slate-400">•</span>
+                                    <p class="text-sm text-slate-500">{{ $reparto->producto->nombre ?? 'Producto' }}</p>
+                                </div>
                             </div>
                         </div>
                         <div class="flex items-center gap-3">
