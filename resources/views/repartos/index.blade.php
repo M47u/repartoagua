@@ -41,7 +41,7 @@ path.leaflet-interactive {
                 </svg>
             </div>
             <div>
-                <h1 class="text-3xl font-bold text-slate-900">Gestión de Repartos</h1>
+                <h1 class="text-2xl md:text-3xl font-bold text-slate-900">Gestión de Repartos</h1>
                 <p class="text-slate-500 mt-1">Administra y programa entregas</p>
             </div>
         </div>
@@ -126,7 +126,7 @@ path.leaflet-interactive {
             </div>
         </div>
 
-        <div id="map" class="w-full h-[500px] rounded-lg"></div>
+        <div id="map" class="w-full rounded-lg" style="min-height:280px;height:50vw;max-height:520px;"></div>
         
         <div class="mt-4 flex items-center gap-4 text-sm">
             <div class="flex items-center gap-2">
@@ -154,15 +154,15 @@ path.leaflet-interactive {
             <table class="w-full">
                 <thead class="bg-slate-50 border-b border-slate-200">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">ID</th>
+                        <th class="hidden sm:table-cell px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">ID</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Cliente</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Producto</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Cantidad</th>
+                        <th class="hidden md:table-cell px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Producto</th>
+                        <th class="hidden sm:table-cell px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Cantidad</th>
                         @if(auth()->user()->role !== 'repartidor')
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Total</th>
+                        <th class="hidden lg:table-cell px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Total</th>
                         @endif
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Repartidor</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Fecha Prog.</th>
+                        <th class="hidden md:table-cell px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Repartidor</th>
+                        <th class="hidden sm:table-cell px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Fecha Prog.</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Estado</th>
                         <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">Acciones</th>
                     </tr>
@@ -170,30 +170,31 @@ path.leaflet-interactive {
                 <tbody class="bg-white divide-y divide-slate-200">
                     @forelse($repartos as $reparto)
                         <tr class="hover:bg-slate-50 transition-colors reparto-row" data-repartidor-id="{{ $reparto->repartidor_id }}">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">
+                            <td class="hidden sm:table-cell px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">
                                 #{{ $reparto->id }}
                             </td>
                             <td class="px-6 py-4">
                                 <div class="text-sm">
                                     <p class="font-medium text-slate-900">{{ $reparto->cliente->nombre }} {{ $reparto->cliente->apellido }}</p>
                                     <p class="text-slate-500 text-xs">{{ Str::limit($reparto->cliente->direccion, 40) }}</p>
+                                    <p class="text-slate-400 text-xs sm:hidden">{{ \Carbon\Carbon::parse($reparto->fecha_programada)->format('d/m/Y') }}</p>
                                 </div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
+                            <td class="hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm text-slate-900">
                                 {{ $reparto->producto->nombre }}
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            <td class="hidden sm:table-cell px-6 py-4 whitespace-nowrap">
                                 <x-badge color="info" size="lg">{{ $reparto->cantidad }}</x-badge>
                             </td>
                             @if(auth()->user()->role !== 'repartidor')
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-emerald-600">
+                            <td class="hidden lg:table-cell px-6 py-4 whitespace-nowrap text-sm font-semibold text-emerald-600">
                                 ${{ number_format($reparto->total, 2) }}
                             </td>
                             @endif
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
+                            <td class="hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm text-slate-900">
                                 {{ $reparto->repartidor->name }}
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
+                            <td class="hidden sm:table-cell px-6 py-4 whitespace-nowrap text-sm text-slate-900">
                                 {{ \Carbon\Carbon::parse($reparto->fecha_programada)->format('d/m/Y') }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
@@ -205,10 +206,10 @@ path.leaflet-interactive {
                                     <x-badge color="danger">✗ Cancelado</x-badge>
                                 @endif
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <div class="flex items-center justify-end gap-2">
+                            <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <div class="flex items-center justify-end gap-1">
                                     @can('view', $reparto)
-                                    <a href="{{ route('repartos.show', $reparto) }}" class="text-sky-600 hover:text-sky-900" title="Ver">
+                                    <a href="{{ route('repartos.show', $reparto) }}" class="p-2.5 text-sky-600 hover:bg-sky-50 rounded-lg transition-colors min-h-touch min-w-touch flex items-center justify-center" title="Ver">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
@@ -218,11 +219,10 @@ path.leaflet-interactive {
 
                                     @if($reparto->estado === 'entregado' && !$reparto->tiene_pago)
                                     @can('createQuick', App\Models\Pago::class)
-                                    <button 
-                                        onclick="abrirModalCobro({{ $reparto->id }})" 
-                                        class="text-emerald-600 hover:text-emerald-900 transition-colors" 
-                                        title="Cobrar"
-                                    >
+                                    <button
+                                        onclick="abrirModalCobro({{ $reparto->id }})"
+                                        class="p-2.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors min-h-touch min-w-touch flex items-center justify-center"
+                                        title="Cobrar">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
                                         </svg>
@@ -231,7 +231,7 @@ path.leaflet-interactive {
                                     @endif
 
                                     @if($reparto->estado === 'entregado' && $reparto->tiene_pago)
-                                    <span class="text-emerald-600" title="Ya cobrado">
+                                    <span class="p-2.5 text-emerald-600 flex items-center justify-center min-h-touch min-w-touch" title="Ya cobrado">
                                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                                             <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                         </svg>
@@ -239,7 +239,7 @@ path.leaflet-interactive {
                                     @endif
 
                                     @can('update', $reparto)
-                                    <a href="{{ route('repartos.edit', $reparto) }}" class="text-amber-600 hover:text-amber-900" title="Editar">
+                                    <a href="{{ route('repartos.edit', $reparto) }}" class="p-2.5 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors min-h-touch min-w-touch flex items-center justify-center" title="Editar">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                         </svg>
@@ -247,9 +247,9 @@ path.leaflet-interactive {
                                     @endcan
 
                                     @if(auth()->user()->role === 'repartidor' && $reparto->estado === 'pendiente')
-                                    <form action="{{ route('repartos.entregar', $reparto->id) }}" method="POST" class="inline">
+                                    <form action="{{ route('repartos.entregar', $reparto->id) }}" method="POST" class="inline-flex">
                                         @csrf
-                                        <button type="submit" class="text-emerald-600 hover:text-emerald-900" title="Marcar como Entregado">
+                                        <button type="submit" class="p-2.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors min-h-touch min-w-touch flex items-center justify-center" title="Marcar como Entregado">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                             </svg>
@@ -258,10 +258,10 @@ path.leaflet-interactive {
                                     @endif
 
                                     @can('delete', $reparto)
-                                    <form action="{{ route('repartos.destroy', $reparto) }}" method="POST" class="inline" onsubmit="return confirm('¿Estás seguro de eliminar este reparto?')">
+                                    <form action="{{ route('repartos.destroy', $reparto) }}" method="POST" class="inline-flex" onsubmit="return confirm('¿Estás seguro de eliminar este reparto?')">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="text-red-600 hover:text-red-900" title="Eliminar">
+                                        <button type="submit" class="p-2.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors min-h-touch min-w-touch flex items-center justify-center" title="Eliminar">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                             </svg>

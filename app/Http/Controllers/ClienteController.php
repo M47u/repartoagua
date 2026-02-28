@@ -12,7 +12,13 @@ class ClienteController extends Controller
     {
         $this->authorize('viewAny', Cliente::class);
         
-        $clientes = Cliente::latest()
+        $clientes = Cliente::withSum(
+                ['movimientosCuenta as debitos_sum' => fn($q) => $q->where('tipo', 'debito')],
+                'monto'
+            )->withSum(
+                ['movimientosCuenta as creditos_sum' => fn($q) => $q->where('tipo', 'credito')],
+                'monto'
+            )->latest()
             ->paginate(15);
             
         return view('clientes.index', compact('clientes'));

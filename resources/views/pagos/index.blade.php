@@ -11,7 +11,7 @@
     <!-- Header -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-            <h1 class="text-3xl font-bold text-slate-900">Pagos</h1>
+            <h1 class="text-2xl md:text-3xl font-bold text-slate-900">Pagos</h1>
             <p class="text-slate-600 mt-1">Registro de pagos de clientes</p>
         </div>
         @can('create', App\Models\Pago::class)
@@ -114,8 +114,8 @@
                     <tr>
                         <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase">Fecha</th>
                         <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase">Cliente</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase">Método</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase">Referencia</th>
+                        <th class="hidden sm:table-cell px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase">Método</th>
+                        <th class="hidden md:table-cell px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase">Referencia</th>
                         <th class="px-4 py-3 text-right text-xs font-semibold text-slate-600 uppercase">Monto</th>
                         <th class="px-4 py-3 text-right text-xs font-semibold text-slate-600 uppercase">Acciones</th>
                     </tr>
@@ -131,7 +131,7 @@
                                 {{ $pago->cliente->nombre }} {{ $pago->cliente->apellido }}
                             </a>
                         </td>
-                        <td class="px-4 py-4">
+                        <td class="hidden sm:table-cell px-4 py-4">
                             @php
                                 $metodoBadges = [
                                     'efectivo' => 'bg-green-100 text-green-700',
@@ -149,22 +149,22 @@
                                 {{ ucfirst(str_replace('_', ' ', $pago->metodo_pago)) }}
                             </span>
                         </td>
-                        <td class="px-4 py-4 text-sm text-slate-600">
+                        <td class="hidden md:table-cell px-4 py-4 text-sm text-slate-600">
                             {{ $pago->referencia ?? '-' }}
                         </td>
                         <td class="px-4 py-4 text-right">
                             <span class="text-lg font-semibold text-green-600">${{ number_format($pago->monto, 2) }}</span>
                         </td>
                         <td class="px-4 py-4 text-right">
-                            <div class="flex items-center justify-end gap-2">
-                                <a href="{{ route('pagos.show', $pago) }}" class="text-indigo-600 hover:text-indigo-900" title="Ver detalles">
+                            <div class="flex items-center justify-end gap-1">
+                                <a href="{{ route('pagos.show', $pago) }}" class="p-2.5 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors min-h-touch min-w-touch flex items-center justify-center" title="Ver detalles">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                                     </svg>
                                 </a>
                                 @can('update', $pago)
-                                <a href="{{ route('pagos.edit', $pago) }}" class="text-slate-600 hover:text-slate-900" title="Editar">
+                                <a href="{{ route('pagos.edit', $pago) }}" class="p-2.5 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors min-h-touch min-w-touch flex items-center justify-center" title="Editar">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                     </svg>

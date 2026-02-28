@@ -11,8 +11,8 @@
     ];
     
     $sizes = [
-        'sm' => 'px-3 py-1.5 text-sm',
-        'md' => 'px-4 py-2 text-base',
+        'sm' => 'px-3 py-1.5 text-sm min-h-touch',
+        'md' => 'px-4 py-2 text-base min-h-touch',
         'lg' => 'px-6 py-3 text-lg',
     ];
     

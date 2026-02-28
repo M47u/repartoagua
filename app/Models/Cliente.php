@@ -63,10 +63,17 @@ class Cliente extends Model
     }
 
     /**
-     * Calcula el saldo actual del cliente
+     * Calcula el saldo actual del cliente.
+     * Si el controlador cargó debitos_sum/creditos_sum via withSum(), los usa
+     * directamente evitando una query adicional por fila (N+1).
      */
     public function getSaldoActualAttribute(): float
     {
+        if (array_key_exists('debitos_sum', $this->attributes)) {
+            return (float) ($this->attributes['debitos_sum'] ?? 0)
+                 - (float) ($this->attributes['creditos_sum'] ?? 0);
+        }
+
         return $this->movimientosCuenta()
             ->selectRaw('SUM(CASE WHEN tipo = "debito" THEN monto ELSE -monto END) as saldo')
             ->value('saldo') ?? 0.00;

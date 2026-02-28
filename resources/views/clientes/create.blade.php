@@ -12,9 +12,14 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 <style>
 #map {
-    height: 400px;
+    min-height: 280px;
+    height: 40vw;
+    max-height: 480px;
     border-radius: 0.5rem;
     z-index: 1;
+}
+@media (min-width: 640px) {
+    #map { min-height: 380px; }
 }
 .leaflet-popup-content {
     font-size: 14px;
@@ -32,7 +37,7 @@
             </svg>
         </div>
         <div>
-            <h1 class="text-3xl font-bold text-slate-900">Nuevo Cliente</h1>
+            <h1 class="text-2xl md:text-3xl font-bold text-slate-900">Nuevo Cliente</h1>
             <p class="text-slate-500 mt-1">Registra un nuevo cliente en el sistema</p>
         </div>
     </div>
@@ -56,7 +61,7 @@
                                    id="nombre" 
                                    name="nombre" 
                                    value="{{ old('nombre') }}" 
-                                   class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent @error('nombre') border-red-500 @enderror"
+                                   class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent @error('nombre') border-red-500 @enderror"
                                    required>
                             @error('nombre')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -72,7 +77,7 @@
                                    id="apellido" 
                                    name="apellido" 
                                    value="{{ old('apellido') }}" 
-                                   class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent @error('apellido') border-red-500 @enderror"
+                                   class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent @error('apellido') border-red-500 @enderror"
                                    required>
                             @error('apellido')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -88,7 +93,7 @@
                                    id="telefono" 
                                    name="telefono" 
                                    value="{{ old('telefono') }}" 
-                                   class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent @error('telefono') border-red-500 @enderror"
+                                   class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent @error('telefono') border-red-500 @enderror"
                                    required>
                             @error('telefono')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -104,7 +109,7 @@
                                    id="email" 
                                    name="email" 
                                    value="{{ old('email') }}" 
-                                   class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent @error('email') border-red-500 @enderror">
+                                   class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent @error('email') border-red-500 @enderror">
                             @error('email')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -126,7 +131,7 @@
                                    name="direccion" 
                                    value="{{ old('direccion') }}" 
                                    placeholder="Calle y número"
-                                   class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent @error('direccion') border-red-500 @enderror"
+                                   class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent @error('direccion') border-red-500 @enderror"
                                    required>
                             @error('direccion')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -143,7 +148,7 @@
                                        id="colonia" 
                                        name="colonia" 
                                        value="{{ old('colonia') }}" 
-                                       class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent @error('colonia') border-red-500 @enderror">
+                                       class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent @error('colonia') border-red-500 @enderror">
                                 @error('colonia')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
@@ -158,7 +163,7 @@
                                        id="ciudad" 
                                        name="ciudad" 
                                        value="{{ old('ciudad') }}" 
-                                       class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent @error('ciudad') border-red-500 @enderror"
+                                       class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent @error('ciudad') border-red-500 @enderror"
                                        required>
                                 @error('ciudad')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -178,7 +183,7 @@
                                        min="-90"
                                        max="90"
                                        placeholder="-26.185700"
-                                       class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent @error('latitude') border-red-500 @enderror">
+                                       class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent @error('latitude') border-red-500 @enderror">
                                 @error('latitude')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
@@ -198,7 +203,7 @@
                                        min="-180"
                                        max="180"
                                        placeholder="-58.175600"
-                                       class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent @error('longitude') border-red-500 @enderror">
+                                       class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent @error('longitude') border-red-500 @enderror">
                                 @error('longitude')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
@@ -212,9 +217,9 @@
                                 <label class="block text-sm font-medium text-slate-700">
                                     Ubicación en el Mapa
                                 </label>
-                                <button type="button" 
+                                <button type="button"
                                         onclick="buscarEnMapa()"
-                                        class="px-3 py-1.5 bg-sky-100 text-sky-700 rounded-lg hover:bg-sky-200 transition-colors text-sm font-medium">
+                                        class="px-3 py-2 min-h-touch bg-sky-100 text-sky-700 rounded-lg hover:bg-sky-200 transition-colors text-sm font-medium inline-flex items-center justify-center">
                                     📍 Buscar dirección en mapa
                                 </button>
                             </div>
@@ -238,7 +243,7 @@
                             </label>
                             <select id="tipo_cliente" 
                                     name="tipo_cliente" 
-                                    class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent @error('tipo_cliente') border-red-500 @enderror"
+                                    class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent @error('tipo_cliente') border-red-500 @enderror"
                                     required>
                                 <option value="hogar" {{ old('tipo_cliente', 'hogar') == 'hogar' ? 'selected' : '' }}>🏠 Hogar</option>
                                 <option value="comercio" {{ old('tipo_cliente', 'hogar') == 'comercio' ? 'selected' : '' }}>🏢 Comercio</option>
@@ -256,7 +261,7 @@
                             </label>
                             <select id="producto_id"
                                     name="producto_id"
-                                    class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent @error('producto_id') border-red-500 @enderror">
+                                    class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent @error('producto_id') border-red-500 @enderror">
                                 <option value="">— Sin producto predeterminado —</option>
                                 @foreach($productos as $producto)
                                     <option value="{{ $producto->id }}"
@@ -293,7 +298,7 @@
                     <textarea id="observaciones" 
                               name="observaciones" 
                               rows="3" 
-                              class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent @error('observaciones') border-red-500 @enderror"
+                              class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent @error('observaciones') border-red-500 @enderror"
                               placeholder="Notas adicionales sobre el cliente...">{{ old('observaciones') }}</textarea>
                     @error('observaciones')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -303,9 +308,9 @@
         </x-card>
 
         <!-- Actions -->
-        <div class="flex items-center justify-between gap-4">
-            <a href="{{ route('clientes.index') }}">
-                <x-button variant="secondary" type="button">
+        <div class="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3">
+            <a href="{{ route('clientes.index') }}" class="w-full sm:w-auto">
+                <x-button variant="secondary" type="button" class="w-full sm:w-auto">
                     <x-slot:icon>
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
@@ -315,7 +320,7 @@
                 </x-button>
             </a>
 
-            <x-button variant="primary" type="submit">
+            <x-button variant="primary" type="submit" class="w-full sm:w-auto">
                 <x-slot:icon>
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>

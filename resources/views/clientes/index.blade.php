@@ -17,7 +17,7 @@
                 </svg>
             </div>
             <div>
-                <h1 class="text-3xl font-bold text-slate-900">Gestión de Clientes</h1>
+                <h1 class="text-2xl md:text-3xl font-bold text-slate-900">Gestión de Clientes</h1>
                 <p class="text-slate-500 mt-1">Administra la información de tus clientes</p>
             </div>
         </div>
@@ -47,21 +47,21 @@
                         <input 
                             type="text" 
                             placeholder="Buscar cliente por nombre, teléfono o dirección..." 
-                            class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent"
+                            class="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent min-h-touch"
                         >
                     </div>
                 </div>
 
                 <!-- Filters -->
                 <div class="flex gap-2 flex-wrap">
-                    <select class="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent">
+                    <select class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent min-h-touch">
                         <option value="">Todos los tipos</option>
                         <option value="hogar">🏠 Hogar</option>
                         <option value="comercio">🏢 Comercio</option>
                         <option value="empresa">🏭 Empresa</option>
                     </select>
 
-                    <select class="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent">
+                    <select class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent min-h-touch">
                         <option value="">Todos los estados</option>
                         <option value="activo">Activos</option>
                         <option value="inactivo">Inactivos</option>
@@ -206,10 +206,10 @@
                         </td>
 
                         <!-- Acciones -->
-                        <td class="px-6 py-4">
-                            <div class="flex items-center justify-end gap-2">
-                                <a href="{{ route('clientes.show', $cliente) }}" 
-                                   class="p-2 text-sky-600 hover:bg-sky-50 rounded-lg transition-colors" 
+                        <td class="px-4 py-4">
+                            <div class="flex items-center justify-end gap-1">
+                                <a href="{{ route('clientes.show', $cliente) }}"
+                                   class="p-2.5 text-sky-600 hover:bg-sky-50 rounded-lg transition-colors min-h-touch min-w-touch flex items-center justify-center"
                                    title="Ver detalles">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -218,8 +218,8 @@
                                 </a>
 
                                 @can('update', $cliente)
-                                <a href="{{ route('clientes.edit', $cliente) }}" 
-                                   class="p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors" 
+                                <a href="{{ route('clientes.edit', $cliente) }}"
+                                   class="p-2.5 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors min-h-touch min-w-touch flex items-center justify-center"
                                    title="Editar">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
@@ -228,11 +228,11 @@
                                 @endcan
 
                                 @can('delete', $cliente)
-                                <form action="{{ route('clientes.destroy', $cliente) }}" method="POST" class="inline-block">
+                                <form action="{{ route('clientes.destroy', $cliente) }}" method="POST" class="inline-flex">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" 
-                                            class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" 
+                                    <button type="submit"
+                                            class="p-2.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors min-h-touch min-w-touch flex items-center justify-center"
                                             title="Eliminar"
                                             onclick="return confirm('¿Estás seguro de que deseas eliminar este cliente?')">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

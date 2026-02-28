@@ -2,8 +2,12 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="theme-color" content="#0ea5e9">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Aguas del Litoral">
 
     <title>{{ config('app.name', 'Aguas del Litoral') }} - @yield('title', 'Sistema de Repartos')</title>
 
@@ -16,7 +20,11 @@
     @stack('styles')
 </head>
 <body class="font-sans antialiased bg-slate-50">
-    <div x-data="{ sidebarOpen: false, sidebarCollapsed: false }" class="min-h-screen">
+    <div
+        x-data="{ sidebarOpen: false, sidebarCollapsed: false }"
+        x-init="$watch('sidebarOpen', val => document.body.classList.toggle('overflow-hidden', val))"
+        class="min-h-screen"
+    >
         
         <!-- Sidebar Desktop -->
         <aside 
@@ -36,9 +44,9 @@
                         <p class="text-xs text-slate-500">Agua de Mesa</p>
                     </div>
                 </a>
-                <button 
+                <button
                     @click="sidebarCollapsed = !sidebarCollapsed"
-                    class="p-1.5 rounded-lg hover:bg-slate-100 transition-colors"
+                    class="p-2 rounded-lg hover:bg-slate-100 transition-colors min-h-touch min-w-touch flex items-center justify-center"
                 >
                     <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>

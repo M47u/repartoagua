@@ -17,7 +17,7 @@
                 </svg>
             </div>
             <div>
-                <h1 class="text-3xl font-bold text-slate-900">Gestión de Usuarios</h1>
+                <h1 class="text-2xl md:text-3xl font-bold text-slate-900">Gestión de Usuarios</h1>
                 <p class="text-slate-500 mt-1">Administra los usuarios del sistema</p>
             </div>
         </div>
@@ -52,14 +52,14 @@
                                 name="search"
                                 value="{{ request('search') }}"
                                 placeholder="Buscar por nombre, apellido, email o DNI..." 
-                                class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                class="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent min-h-touch"
                             >
                         </div>
                     </div>
 
                     <!-- Filters -->
                     <div class="flex gap-2 flex-wrap">
-                        <select name="role" class="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <select name="role" class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent min-h-touch">
                             <option value="">Todos los roles</option>
                             <option value="administrador" {{ request('role') == 'administrador' ? 'selected' : '' }}>👨‍💼 Administrador</option>
                             <option value="gerente" {{ request('role') == 'gerente' ? 'selected' : '' }}>👔 Gerente</option>
@@ -68,18 +68,18 @@
                             <option value="repartidor" {{ request('role') == 'repartidor' ? 'selected' : '' }}>📦 Repartidor</option>
                         </select>
 
-                        <select name="activo" class="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <select name="activo" class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent min-h-touch">
                             <option value="">Todos los estados</option>
                             <option value="1" {{ request('activo') === '1' ? 'selected' : '' }}>✅ Activos</option>
                             <option value="0" {{ request('activo') === '0' ? 'selected' : '' }}>❌ Inactivos</option>
                         </select>
 
-                        <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+                        <button type="submit" class="px-4 py-3 min-h-touch bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors inline-flex items-center justify-center">
                             Filtrar
                         </button>
 
                         @if(request()->hasAny(['search', 'role', 'activo']))
-                        <a href="{{ route('usuarios.index') }}" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 transition-colors">
+                        <a href="{{ route('usuarios.index') }}" class="px-4 py-3 min-h-touch bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 transition-colors inline-flex items-center justify-center">
                             Limpiar
                         </a>
                         @endif
@@ -199,10 +199,10 @@
                         </td>
 
                         <!-- Acciones -->
-                        <td class="px-6 py-4">
-                            <div class="flex items-center justify-end gap-2">
+                        <td class="px-4 py-4">
+                            <div class="flex items-center justify-end gap-1">
                                 @can('view', $usuario)
-                                <a href="{{ route('usuarios.show', $usuario) }}" class="p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors" title="Ver detalles">
+                                <a href="{{ route('usuarios.show', $usuario) }}" class="p-2.5 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors min-h-touch min-w-touch flex items-center justify-center" title="Ver detalles">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
@@ -211,16 +211,16 @@
                                 @endcan
 
                                 @can('update', $usuario)
-                                <a href="{{ route('usuarios.edit', $usuario) }}" class="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors" title="Editar">
+                                <a href="{{ route('usuarios.edit', $usuario) }}" class="p-2.5 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors min-h-touch min-w-touch flex items-center justify-center" title="Editar">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                     </svg>
                                 </a>
 
-                                <form action="{{ route('usuarios.toggle-estado', $usuario) }}" method="POST" class="inline">
+                                <form action="{{ route('usuarios.toggle-estado', $usuario) }}" method="POST" class="inline-flex">
                                     @csrf
                                     @method('PATCH')
-                                    <button type="submit" class="p-2 {{ $usuario->activo ? 'text-amber-600 hover:bg-amber-50' : 'text-green-600 hover:bg-green-50' }} rounded-lg transition-colors" title="{{ $usuario->activo ? 'Desactivar' : 'Activar' }}">
+                                    <button type="submit" class="p-2.5 {{ $usuario->activo ? 'text-amber-600 hover:bg-amber-50' : 'text-green-600 hover:bg-green-50' }} rounded-lg transition-colors min-h-touch min-w-touch flex items-center justify-center" title="{{ $usuario->activo ? 'Desactivar' : 'Activar' }}">
                                         @if($usuario->activo)
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
@@ -235,10 +235,10 @@
                                 @endcan
 
                                 @can('delete', $usuario)
-                                <form action="{{ route('usuarios.destroy', $usuario) }}" method="POST" class="inline" onsubmit="return confirm('¿Estás seguro de eliminar este usuario? Esta acción no se puede deshacer.');">
+                                <form action="{{ route('usuarios.destroy', $usuario) }}" method="POST" class="inline-flex" onsubmit="return confirm('¿Estás seguro de eliminar este usuario? Esta acción no se puede deshacer.');">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Eliminar">
+                                    <button type="submit" class="p-2.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors min-h-touch min-w-touch flex items-center justify-center" title="Eliminar">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                         </svg>
