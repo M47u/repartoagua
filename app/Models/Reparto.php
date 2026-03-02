@@ -95,9 +95,7 @@ class Reparto extends Model
      */
     public function tienePago(): bool
     {
-        // Temporalmente deshabilitado - la columna 'referencia' no existe en la BD
-        return false;
-        // return \App\Models\Pago::where('referencia', 'Reparto #' . $this->id)->exists();
+        return \App\Models\Pago::where('referencia', 'Reparto #' . $this->id)->exists();
     }
 
     /**

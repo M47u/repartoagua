@@ -14,11 +14,27 @@ class PagoController extends Controller
     {
         $this->authorize('viewAny', Pago::class);
         
+        // Mostrar solo pagos del mes actual
         $pagos = Pago::with(['cliente'])
+            ->whereBetween('fecha_pago', [
+                now()->startOfMonth()->format('Y-m-d') . ' 00:00:00',
+                now()->endOfMonth()->format('Y-m-d') . ' 23:59:59'
+            ])
             ->latest()
             ->paginate(15);
         
-        return view('pagos.index', compact('pagos'));
+        // Calcular totales sobre TODOS los pagos, no solo la página actual
+        $totalDelDia = Pago::whereDate('fecha_pago', now()->toDateString())->sum('monto');
+        $totalDelMes = Pago::whereBetween('fecha_pago', [
+            now()->startOfMonth()->format('Y-m-d') . ' 00:00:00',
+            now()->endOfMonth()->format('Y-m-d') . ' 23:59:59'
+        ])->sum('monto');
+        $totalPagos = Pago::whereBetween('fecha_pago', [
+            now()->startOfMonth()->format('Y-m-d') . ' 00:00:00',
+            now()->endOfMonth()->format('Y-m-d') . ' 23:59:59'
+        ])->count();
+        
+        return view('pagos.index', compact('pagos', 'totalDelDia', 'totalDelMes', 'totalPagos'));
     }
 
     public function create()
@@ -156,10 +172,23 @@ class PagoController extends Controller
 
         // Verificar que el reparto no tenga ya un pago registrado
         $reparto = Reparto::findOrFail($validated['reparto_id']);
-        if ($reparto->tienePago()) {
+        
+        // Doble validación: verificar por método y por query directa
+        $referenciaReparto = 'Reparto #' . $validated['reparto_id'];
+        $pagoExistente = Pago::where('referencia', $referenciaReparto)->exists();
+        
+        if ($reparto->tienePago() || $pagoExistente) {
             return response()->json([
                 'success' => false,
-                'message' => 'Este reparto ya tiene un pago registrado.',
+                'message' => 'Este reparto ya tiene un pago registrado. No se puede cobrar dos veces el mismo reparto.',
+            ], 422);
+        }
+        
+        // Verificar que el reparto esté entregado
+        if ($reparto->estado !== 'entregado') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Solo se pueden cobrar repartos que estén en estado "entregado".',
             ], 422);
         }
 

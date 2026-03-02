@@ -8,6 +8,7 @@ use App\Http\Controllers\RepartoController;
 use App\Http\Controllers\PagoController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\VehiculoController;
+use App\Http\Controllers\ReporteController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -47,6 +48,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('usuarios', UsuarioController::class);
     Route::patch('usuarios/{usuario}/toggle-estado', [UsuarioController::class, 'toggleEstado'])
         ->name('usuarios.toggle-estado');
+    
+    // Reportes - Admin, gerente, administrativo
+    Route::prefix('reportes')->name('reportes.')->group(function () {
+        Route::get('/', [ReporteController::class, 'index'])->name('index');
+        Route::get('/bidones-cobrados', [ReporteController::class, 'bidonesCobrados'])->name('bidones-cobrados');
+        Route::get('/ingresos-por-periodo', [ReporteController::class, 'ingresosPorPeriodo'])->name('ingresos-por-periodo');
+        Route::get('/estado-cuenta-cliente/{cliente?}', [ReporteController::class, 'estadoCuentaCliente'])->name('estado-cuenta-cliente');
+        Route::get('/cuentas-por-cobrar', [ReporteController::class, 'cuentasPorCobrar'])->name('cuentas-por-cobrar');
+        Route::get('/repartos-por-periodo', [ReporteController::class, 'repartosPorPeriodo'])->name('repartos-por-periodo');
+    });
     
     // Vehículos - Admin, gerente, administrativo y chofer (limitado)
     Route::resource('vehiculos', VehiculoController::class);

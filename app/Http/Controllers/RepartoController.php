@@ -24,11 +24,10 @@ class RepartoController extends Controller
         $repartos = $query->latest()->paginate(15);
         
         // Agregar información de si tiene pago para cada reparto
-        // Temporalmente deshabilitado hasta corregir estructura de BD
-        // $repartos->getCollection()->transform(function ($reparto) {
-        //     $reparto->tiene_pago = $reparto->tienePago();
-        //     return $reparto;
-        // });
+        $repartos->getCollection()->transform(function ($reparto) {
+            $reparto->tiene_pago = $reparto->tienePago();
+            return $reparto;
+        });
         
         // Obtener todos los repartidores para el filtro
         $repartidores = User::where('role', 'repartidor')->orderBy('name')->get();
