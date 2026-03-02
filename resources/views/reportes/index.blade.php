@@ -128,7 +128,27 @@
             </div>
         </a>
 
-        <!-- Próximamente (Placeholder para Fase 2) -->
+        <!-- Análisis Geográfico - Fase 2 -->
+        <a href="{{ route('reportes.analisis-geografico') }}" class="group bg-white rounded-xl shadow-sm border border-slate-200 hover:shadow-lg hover:border-blue-300 transition-all duration-200 p-6">
+            <div class="flex items-start justify-between mb-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+                    </svg>
+                </div>
+                <span class="text-blue-600 text-xs font-semibold uppercase tracking-wide">Fase 2 - Nuevo</span>
+            </div>
+            <h3 class="text-lg font-semibold text-slate-900 mb-2 group-hover:text-blue-600 transition-colors">Análisis Geográfico</h3>
+            <p class="text-sm text-slate-500">Mapa de calor de repartos por ubicación y análisis de zonas de cobertura.</p>
+            <div class="mt-4 flex items-center text-blue-600 text-sm font-medium">
+                Ver reporte
+                <svg class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </div>
+        </a>
+
+        <!-- Próximamente (Placeholder para más Fase 2) -->
         <div class="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl shadow-sm border-2 border-dashed border-slate-300 p-6 opacity-60">
             <div class="flex items-start justify-between mb-4">
                 <div class="w-12 h-12 bg-slate-300 rounded-lg flex items-center justify-center">
@@ -139,7 +159,7 @@
                 <span class="text-slate-500 text-xs font-semibold uppercase tracking-wide">Fase 2</span>
             </div>
             <h3 class="text-lg font-semibold text-slate-600 mb-2">Más reportes próximamente</h3>
-            <p class="text-sm text-slate-400">Eficiencia de repartidores, análisis de zonas y más...</p>
+            <p class="text-sm text-slate-400">Eficiencia de repartidores, productos más vendidos y más...</p>
         </div>
 
     </div>

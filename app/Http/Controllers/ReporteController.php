@@ -372,4 +372,82 @@ class ReporteController extends Controller
             'productoId'
         ));
     }
+
+    /**
+     * Reporte de Análisis Geográfico
+     */
+    public function analisisGeografico(Request $request)
+    {
+        $fechaInicio = $request->get('fecha_inicio', Carbon::now()->startOfMonth()->format('Y-m-d'));
+        $fechaFin = $request->get('fecha_fin', Carbon::now()->format('Y-m-d'));
+
+        // Obtener repartos con ubicación del cliente
+        $repartos = Reparto::with(['cliente', 'producto', 'repartidor'])
+            ->whereBetween('fecha', [$fechaInicio . ' 00:00:00', $fechaFin . ' 23:59:59'])
+            ->whereHas('cliente', function($query) {
+                $query->whereNotNull('latitude')
+                      ->whereNotNull('longitude');
+            })
+            ->get();
+
+        // Agrupar por zona (usando colonia como barrio/vecindario específico)
+        $repartosPorZona = Reparto::with('cliente')
+            ->whereBetween('fecha', [$fechaInicio . ' 00:00:00', $fechaFin . ' 23:59:59'])
+            ->whereHas('cliente', function($query) {
+                $query->whereNotNull('colonia');
+            })
+            ->get()
+            ->groupBy(fn($r) => $r->cliente->colonia ?? 'Sin zona')
+            ->map(function($grupo) {
+                return [
+                    'repartos' => $grupo->count(),
+                    'bidones' => $grupo->sum('cantidad'),
+                    'total' => $grupo->sum('total'),
+                ];
+            })
+            ->sortByDesc('bidones');
+
+        // Datos para el mapa de calor (basado en consumo de bidones)
+        $heatmapData = $repartos
+            ->filter(fn($r) => $r->cliente && $r->cliente->latitude && $r->cliente->longitude)
+            ->groupBy('cliente_id')
+            ->map(function($grupo) {
+                $cliente = $grupo->first()->cliente;
+                $totalBidones = $grupo->sum('cantidad');
+                $totalRepartos = $grupo->count();
+                
+                return [
+                    'lat' => (float) $cliente->latitude,
+                    'lng' => (float) $cliente->longitude,
+                    'bidones' => $totalBidones,
+                    'repartos' => $totalRepartos,
+                    'nombre' => $cliente->nombre,
+                    'direccion' => $cliente->direccion,
+                    'colonia' => $cliente->colonia,
+                    'total' => $grupo->sum('total'),
+                ];
+            })
+            ->values();
+
+        // Estadísticas generales
+        $totalBidones = $repartos->sum('cantidad');
+        $totalRepartos = $repartos->count();
+        $zonasActivas = $repartosPorZona->count();
+        $clientesConUbicacion = Cliente::whereNotNull('latitude')
+            ->whereNotNull('longitude')
+            ->where('activo', true)
+            ->count();
+
+        return view('reportes.analisis-geografico', compact(
+            'fechaInicio',
+            'fechaFin',
+            'repartos',
+            'repartosPorZona',
+            'heatmapData',
+            'totalBidones',
+            'totalRepartos',
+            'zonasActivas',
+            'clientesConUbicacion'
+        ));
+    }
 }

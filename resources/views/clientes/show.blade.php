@@ -91,7 +91,7 @@
 
                 @if($cliente->colonia)
                 <div>
-                    <label class="text-sm font-medium text-slate-500">Colonia</label>
+                    <label class="text-sm font-medium text-slate-500">Barrio</label>
                     <p class="text-slate-900 font-medium">{{ $cliente->colonia }}</p>
                 </div>
                 @endif

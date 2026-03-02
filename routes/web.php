@@ -57,6 +57,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/estado-cuenta-cliente/{cliente?}', [ReporteController::class, 'estadoCuentaCliente'])->name('estado-cuenta-cliente');
         Route::get('/cuentas-por-cobrar', [ReporteController::class, 'cuentasPorCobrar'])->name('cuentas-por-cobrar');
         Route::get('/repartos-por-periodo', [ReporteController::class, 'repartosPorPeriodo'])->name('repartos-por-periodo');
+        Route::get('/analisis-geografico', [ReporteController::class, 'analisisGeografico'])->name('analisis-geografico');
     });
     
     // Vehículos - Admin, gerente, administrativo y chofer (limitado)
