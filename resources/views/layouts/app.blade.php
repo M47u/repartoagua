@@ -41,7 +41,7 @@
                     >
                     <div x-show="!sidebarCollapsed" class="overflow-hidden">
                         <h1 class="text-lg font-bold text-slate-900">Aguas del Litoral</h1>
-                        <p class="text-xs text-slate-500">Agua de Mesa</p>
+                        {{-- <p class="text-xs text-slate-500">Agua de Mesa</p> --}}
                     </div>
                 </a>
                 <button
@@ -175,7 +175,7 @@
                     >
                     <div>
                         <h1 class="text-lg font-bold text-slate-900">Aguas del Litoral</h1>
-                        <p class="text-xs text-slate-500">Agua de Mesa</p>
+                        {{-- <p class="text-xs text-slate-500">Agua de Mesa</p> --}}
                     </div>
                 </a>
             </div>

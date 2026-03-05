@@ -224,8 +224,15 @@
                                 </button>
                             </div>
                             <div id="map" class="border border-slate-300 shadow-sm"></div>
+                            <div id="direccion-detectada" class="hidden items-center gap-2 px-3 py-2 bg-sky-50 border border-sky-200 rounded-lg text-sm text-sky-800">
+                                <svg class="w-4 h-4 flex-shrink-0 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                                <span id="direccion-detectada-texto"></span>
+                            </div>
                             <p class="text-xs text-slate-500">
-                                💡 <strong>Cómo usar:</strong> Ingresa la dirección y haz clic en "Buscar dirección en mapa" para geocodificar automáticamente, 
+                                💡 <strong>Cómo usar:</strong> Ingresa la dirección y haz clic en "Buscar dirección en mapa" para geocodificar automáticamente,
                                 o haz clic directamente en el mapa para establecer la ubicación. También puedes arrastrar el marcador 📍 para ajustar la posición.
                             </p>
                         </div>
@@ -366,33 +373,66 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Permitir hacer clic en el mapa para establecer ubicación
     map.on('click', function(e) {
-        agregarMarcador(e.latlng.lat, e.latlng.lng);
+        agregarMarcador(e.latlng.lat, e.latlng.lng, true);
     });
 });
 
 // Función para agregar o mover marcador
-function agregarMarcador(lat, lng) {
+function agregarMarcador(lat, lng, geocodificar = false) {
     // Si ya existe un marcador, removerlo
     if (marker) {
         map.removeLayer(marker);
     }
-    
+
     // Crear nuevo marcador draggable (arrastrable)
     marker = L.marker([lat, lng], {
         draggable: true
     }).addTo(map);
-    
+
     // Actualizar campos cuando se arrastra el marcador
     marker.on('dragend', function(e) {
         const position = e.target.getLatLng();
         actualizarCoordenadas(position.lat, position.lng);
+        obtenerDireccion(position.lat, position.lng);
     });
-    
+
     // Popup con información
     marker.bindPopup(`<b>Ubicación del Cliente</b><br>Lat: ${lat.toFixed(6)}<br>Lng: ${lng.toFixed(6)}`).openPopup();
-    
+
     // Actualizar campos de coordenadas
     actualizarCoordenadas(lat, lng);
+
+    // Geocodificación inversa al hacer clic manualmente en el mapa
+    if (geocodificar) {
+        obtenerDireccion(lat, lng);
+    }
+}
+
+// Obtener dirección a partir de coordenadas (geocodificación inversa)
+function obtenerDireccion(lat, lng) {
+    const panel = document.getElementById('direccion-detectada');
+    const texto = document.getElementById('direccion-detectada-texto');
+
+    texto.textContent = 'Buscando dirección...';
+    panel.classList.remove('hidden');
+    panel.classList.add('flex');
+
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`)
+        .then(r => r.json())
+        .then(data => {
+            if (data && data.display_name) {
+                texto.textContent = data.display_name;
+                // Actualizar popup del marcador con la dirección
+                if (marker) {
+                    marker.bindPopup(`<b>Ubicación del Cliente</b><br>${data.display_name}`).openPopup();
+                }
+            } else {
+                texto.textContent = `Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)} (dirección no disponible)`;
+            }
+        })
+        .catch(() => {
+            texto.textContent = `Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}`;
+        });
 }
 
 // Actualizar campos de input con las coordenadas
