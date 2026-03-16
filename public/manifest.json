@@ -1,0 +1,35 @@
+{
+    "name": "Aguas del Litoral",
+    "short_name": "AguasLitoral",
+    "description": "Sistema de gestión de repartos de agua",
+    "start_url": "/",
+    "display": "standalone",
+    "orientation": "portrait-primary",
+    "background_color": "#f8fafc",
+    "theme_color": "#0ea5e9",
+    "lang": "es",
+    "icons": [
+        {
+            "src": "/images/logo-aguas-del-litoral.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/images/logo-aguas-del-litoral.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "categories": ["business", "productivity"],
+    "shortcuts": [
+        {
+            "name": "Repartos",
+            "short_name": "Repartos",
+            "description": "Ver repartos del día",
+            "url": "/repartos",
+            "icons": [{ "src": "/images/logo-aguas-del-litoral.png", "sizes": "96x96" }]
+        }
+    ]
+}

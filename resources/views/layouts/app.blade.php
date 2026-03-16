@@ -8,6 +8,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Aguas del Litoral">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/images/logo-aguas-del-litoral.png">
 
     <title>{{ config('app.name', 'Aguas del Litoral') }} - @yield('title', 'Sistema de Repartos')</title>
 
@@ -364,5 +366,14 @@
     <x-toast />
 
     @stack('scripts')
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .catch(err => console.warn('Service Worker no pudo registrarse:', err));
+            });
+        }
+    </script>
 </body>
 </html>

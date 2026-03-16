@@ -127,7 +127,14 @@ path.leaflet-interactive {
         </div>
 
         <div id="map" class="w-full rounded-lg" style="min-height:280px;height:50vw;max-height:520px;"></div>
-        
+
+        <div id="aviso-sin-gps" class="hidden mt-3 flex items-center gap-2 px-4 py-3 bg-amber-50 border border-amber-300 rounded-lg text-sm text-amber-800">
+            <svg class="w-4 h-4 flex-shrink-0 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M12 3a9 9 0 100 18A9 9 0 0012 3z"></path>
+            </svg>
+            <span>No se pudo obtener tu ubicación. El mapa se muestra centrado en Formosa. Verificá los permisos de ubicación del navegador.</span>
+        </div>
+
         <div class="mt-4 flex items-center gap-4 text-sm">
             <div class="flex items-center gap-2">
                 <div class="w-3 h-3 bg-amber-500 rounded-full"></div>
@@ -311,6 +318,92 @@ path.leaflet-interactive {
     </x-card>
 </div>
 
+<!-- Modal de Resultado de Ruta Óptima -->
+<div id="modal-ruta-optima" class="hidden fixed inset-0 bg-slate-900/50 flex items-center justify-center p-4 backdrop-blur-sm" style="z-index: 9999;">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+        <div class="bg-gradient-to-r from-emerald-500 to-sky-500 px-6 py-5 rounded-t-2xl flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-white">Ruta Óptima Calculada</h3>
+                    <p class="text-emerald-100 text-xs">Resultado con tráfico en tiempo real</p>
+                </div>
+            </div>
+            <button onclick="document.getElementById('modal-ruta-optima').classList.add('hidden')" class="text-white/80 hover:text-white p-1">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+
+        <div class="p-6 space-y-4">
+            <!-- Aviso coordenadas faltantes -->
+            <div id="ruta-aviso-coordenadas" class="hidden bg-amber-50 border border-amber-300 rounded-lg px-4 py-3 text-sm text-amber-800 flex gap-2">
+                <svg class="w-4 h-4 flex-shrink-0 mt-0.5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M12 3a9 9 0 100 18A9 9 0 0012 3z"></path>
+                </svg>
+                <span id="ruta-aviso-texto"></span>
+            </div>
+
+            <!-- Stats de la ruta -->
+            <div class="grid grid-cols-2 gap-3">
+                <div class="bg-sky-50 border border-sky-200 rounded-xl p-3 text-center">
+                    <p class="text-xs text-sky-600 font-semibold uppercase tracking-wide">Paradas</p>
+                    <p id="ruta-paradas" class="text-2xl font-bold text-sky-700 mt-1">-</p>
+                </div>
+                <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-center">
+                    <p class="text-xs text-emerald-600 font-semibold uppercase tracking-wide">Distancia</p>
+                    <p id="ruta-distancia" class="text-2xl font-bold text-emerald-700 mt-1">-</p>
+                </div>
+            </div>
+
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-2">
+                <div class="flex items-center gap-2 text-sm text-slate-700">
+                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span>Tiempo estimado: <strong id="ruta-tiempo" class="text-slate-900">-</strong></span>
+                </div>
+                <div class="flex items-center gap-2 text-sm text-slate-700">
+                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                    </svg>
+                    <span>Inicio: <strong id="ruta-inicio" class="text-slate-900">-</strong></span>
+                </div>
+                <div class="flex items-center gap-2 text-sm text-slate-500">
+                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20A10 10 0 0012 2z"></path>
+                    </svg>
+                    <span class="text-xs">Incluye tráfico real + 5 min por parada</span>
+                </div>
+            </div>
+
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-1">
+                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Recorrido</p>
+                <div class="flex items-center gap-2 text-sm text-slate-700">
+                    <span class="w-5 h-5 bg-emerald-500 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">1</span>
+                    <span>Primera parada: <strong id="ruta-primera" class="text-slate-900">-</strong></span>
+                </div>
+                <div class="flex items-center gap-2 text-sm text-slate-700">
+                    <span class="w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0" id="ruta-num-ultima">-</span>
+                    <span>Última parada: <strong id="ruta-ultima" class="text-slate-900">-</strong></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="px-6 pb-6">
+            <button onclick="document.getElementById('modal-ruta-optima').classList.add('hidden')"
+                class="w-full py-3 bg-gradient-to-r from-emerald-500 to-sky-500 text-white font-bold rounded-xl hover:from-emerald-600 hover:to-sky-600 transition-all shadow-md">
+                Entendido
+            </button>
+        </div>
+    </div>
+</div>
+
 <!-- Modal de Cobro Rápido -->
 <div id="modal-cobro-rapido" class="hidden fixed inset-0 bg-slate-900/50 flex items-center justify-center p-4 backdrop-blur-sm" style="z-index: 9999;">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
@@ -461,10 +554,10 @@ let repartosData = @json($repartos->items());
 let ubicacionActual = null;
 let marcadorUbicacionActual = null;
 
-// Inicializar mapa centrado en Formosa, Argentina con Mapbox
+// Inicializar mapa con ubicación actual del usuario
 function initMap() {
     map = L.map('map').setView([-26.1857, -58.1756], 13);
-    
+
     // Usar tiles de Mapbox (mejor calidad y datos actualizados)
     L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/{z}/{x}/{y}?access_token=' + MAPBOX_TOKEN, {
         attribution: '© <a href="https://www.mapbox.com/about/maps/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
@@ -472,7 +565,67 @@ function initMap() {
         zoomOffset: -1,
         maxZoom: 19
     }).addTo(map);
-    
+
+    // Centrar en la ubicación actual y mostrar punto azul animado
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                map.setView([lat, lng], 13);
+
+                // Inyectar estilos de animación pulse
+                if (!document.getElementById('style-ubicacion-actual')) {
+                    const style = document.createElement('style');
+                    style.id = 'style-ubicacion-actual';
+                    style.textContent = `
+                        @keyframes ub-pulse {
+                            0%   { transform: scale(1);   opacity: 1; }
+                            50%  { transform: scale(2.2); opacity: 0; }
+                            100% { transform: scale(1);   opacity: 1; }
+                        }
+                        .ub-wrapper { position: relative; width: 20px; height: 20px; }
+                        .ub-dot {
+                            position: absolute; inset: 0;
+                            background: #3b82f6;
+                            border-radius: 50%;
+                            border: 2px solid white;
+                            box-shadow: 0 0 0 2px #3b82f6;
+                        }
+                        .ub-ring {
+                            position: absolute; inset: 0;
+                            background: #3b82f6;
+                            border-radius: 50%;
+                            opacity: 0.7;
+                            animation: ub-pulse 1.8s ease-out infinite;
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }
+
+                const iconoUbicacion = L.divIcon({
+                    className: '',
+                    html: `<div class="ub-wrapper"><div class="ub-ring"></div><div class="ub-dot"></div></div>`,
+                    iconSize: [20, 20],
+                    iconAnchor: [10, 10]
+                });
+
+                L.marker([lat, lng], { icon: iconoUbicacion, zIndexOffset: 1000 })
+                    .addTo(map)
+                    .bindPopup('<strong>Tu ubicación actual</strong>');
+            },
+            function(error) {
+                console.warn('No se pudo obtener la ubicación actual:', error.message);
+                const aviso = document.getElementById('aviso-sin-gps');
+                if (aviso) aviso.classList.remove('hidden');
+            },
+            { enableHighAccuracy: true, timeout: 10000 }
+        );
+    } else {
+        const aviso = document.getElementById('aviso-sin-gps');
+        if (aviso) aviso.classList.remove('hidden');
+    }
+
     cargarMarcadores();
 }
 
@@ -973,30 +1126,37 @@ async function generarRutaOptima() {
     
     console.log('📏 Distancia total (línea recta):', distanciaTotal.toFixed(2), 'km');
     
-    // Mostrar información de la ruta
-    const mensaje = puntos.length < repartosPendientes.length 
-        ? `⚠️ ATENCIÓN: Se encontraron ${repartosPendientes.length} repartos pendientes,\npero solo ${puntos.length} tienen coordenadas válidas.\n\n`
-        : '';
-    
-    const mensajeInicio = puntoInicio 
-        ? '📍 Punto de partida: Tu ubicación actual\n'
-        : '📍 Punto de partida: Primera parada\n';
-    
-    // Usar distancia y duración real de Mapbox si están disponibles
-    const infoDistancia = rutaOptima.distanciaReal 
-        ? `📏 Distancia por calles: ${rutaOptima.distanciaReal.toFixed(2)} km\n⏱️  Tiempo estimado: ${Math.round(rutaOptima.duracionReal)} minutos\n🚗 Considera tráfico en tiempo real\n`
-        : `📏 Distancia aproximada: ${distanciaTotal.toFixed(2)} km\n`;
-    
-    alert(`✅ ¡Ruta óptima calculada con Mapbox!\n\n` +
-          mensaje +
-          mensajeInicio +
-          `📍 Paradas: ${rutaOptima.length}\n` +
-          infoDistancia +
-          `\nLa ruta se muestra siguiendo las calles con una línea roja\n` +
-          `y números AZULES grandes indicando el orden de entrega.\n` +
-          `Se evitan calles sin pavimentar.\n\n` +
-          `Primera parada: ${rutaOptima[0].reparto.cliente.nombre}\n` +
-          `Última parada: ${rutaOptima[rutaOptima.length-1].reparto.cliente.nombre}`);
+    // Mostrar modal con resultado de la ruta
+    const demora = rutaOptima.length * 5; // 5 min por parada
+    const tiempoTotal = rutaOptima.distanciaReal
+        ? Math.round(rutaOptima.duracionReal) + demora
+        : null;
+
+    // Aviso coordenadas faltantes
+    const avisoEl = document.getElementById('ruta-aviso-coordenadas');
+    const avisoTexto = document.getElementById('ruta-aviso-texto');
+    if (puntos.length < repartosPendientes.length) {
+        avisoTexto.textContent = `Atención: ${repartosPendientes.length} repartos pendientes, pero solo ${puntos.length} tienen coordenadas válidas.`;
+        avisoEl.classList.remove('hidden');
+    } else {
+        avisoEl.classList.add('hidden');
+    }
+
+    document.getElementById('ruta-paradas').textContent = rutaOptima.length;
+    document.getElementById('ruta-distancia').textContent = rutaOptima.distanciaReal
+        ? `${rutaOptima.distanciaReal.toFixed(1)} km`
+        : `~${distanciaTotal.toFixed(1)} km`;
+    document.getElementById('ruta-tiempo').textContent = tiempoTotal
+        ? `${tiempoTotal} min`
+        : 'No disponible';
+    document.getElementById('ruta-inicio').textContent = puntoInicio
+        ? 'Tu ubicación actual'
+        : 'Primera parada';
+    document.getElementById('ruta-primera').textContent = rutaOptima[0].reparto.cliente.nombre;
+    document.getElementById('ruta-ultima').textContent = rutaOptima[rutaOptima.length - 1].reparto.cliente.nombre;
+    document.getElementById('ruta-num-ultima').textContent = rutaOptima.length;
+
+    document.getElementById('modal-ruta-optima').classList.remove('hidden');
 }
 
 // Limpiar ruta del mapa
