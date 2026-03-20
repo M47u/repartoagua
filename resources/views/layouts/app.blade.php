@@ -292,12 +292,58 @@
                     <!-- Right Side -->
                     <div class="flex items-center gap-4">
                         <!-- Notifications -->
-                        <button class="relative p-2 rounded-lg hover:bg-slate-100 transition-colors">
-                            <svg class="w-6 h-6 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
-                            </svg>
-                            <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                        </button>
+                        <div x-data="{ open: false }" class="relative">
+                            <button
+                                @click="open = !open"
+                                class="relative p-2 rounded-lg hover:bg-slate-100 transition-colors"
+                            >
+                                <svg class="w-6 h-6 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                                </svg>
+                                @if(($unreadNotificationsCount ?? 0) > 0)
+                                    <span class="absolute -top-0.5 -right-0.5 min-w-[1rem] h-4 px-1 bg-red-500 text-white text-[10px] leading-4 rounded-full text-center font-semibold">
+                                        {{ $unreadNotificationsCount > 9 ? '9+' : $unreadNotificationsCount }}
+                                    </span>
+                                @endif
+                            </button>
+
+                            <div
+                                x-show="open"
+                                @click.away="open = false"
+                                x-transition:enter="transition ease-out duration-100"
+                                x-transition:enter-start="transform opacity-0 scale-95"
+                                x-transition:enter-end="transform opacity-100 scale-100"
+                                x-transition:leave="transition ease-in duration-75"
+                                x-transition:leave-start="transform opacity-100 scale-100"
+                                x-transition:leave-end="transform opacity-0 scale-95"
+                                class="absolute right-0 mt-2 w-80 max-w-[90vw] bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden"
+                                style="display: none;"
+                            >
+                                <div class="px-4 py-3 border-b border-slate-100">
+                                    <p class="text-sm font-semibold text-slate-900">Notificaciones</p>
+                                </div>
+
+                                @if(!empty($headerNotifications))
+                                    <div class="max-h-96 overflow-y-auto">
+                                        @foreach($headerNotifications as $notification)
+                                            <a href="{{ $notification['url'] }}" class="block px-4 py-3 border-b border-slate-50 hover:bg-slate-50 transition-colors">
+                                                <div class="flex items-start justify-between gap-3">
+                                                    <p class="text-sm font-medium {{ $notification['priority'] === 'high' ? 'text-rose-700' : 'text-slate-800' }}">
+                                                        {{ $notification['title'] }}
+                                                    </p>
+                                                    <span class="text-xs text-slate-500 whitespace-nowrap">{{ $notification['time'] }}</span>
+                                                </div>
+                                                <p class="text-sm text-slate-600 mt-1">{{ $notification['message'] }}</p>
+                                            </a>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <div class="px-4 py-6 text-center">
+                                        <p class="text-sm text-slate-600">No hay notificaciones por ahora.</p>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
 
                         <!-- User Menu -->
                         <div x-data="{ open: false }" class="relative">

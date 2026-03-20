@@ -33,7 +33,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     
     // Repartos - Todos los roles con restricciones en policies
     Route::resource('repartos', RepartoController::class);
-    Route::post('repartos/{id}/entregar', [RepartoController::class, 'marcarEntregado'])
+    Route::match(['post', 'patch'], 'repartos/{id}/entregar', [RepartoController::class, 'marcarEntregado'])
         ->name('repartos.entregar');
     
     // Pagos - Solo admin y administrativo

@@ -161,7 +161,6 @@
 
                             <form id="entregar-form-{{ $reparto->id }}" action="{{ route('repartos.entregar', $reparto) }}" method="POST" class="hidden">
                                 @csrf
-                                @method('PATCH')
                             </form>
                         </div>
                     @elseif($reparto->estado === 'entregado')
